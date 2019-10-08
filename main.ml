@@ -22,19 +22,33 @@ type _ case =
 type 'a board = 'a
     constraint 'a = < left:'l; player:'p player; at:'c free; right: 'r >
 
-type e = empty free case
-type k = key free case
-type d = door case
+type e = empty free
+type k = key free
+type d = door
 
-type start = <left:e;
-              at:empty free;
-              player: empty_handed player;
-              right: e * (k * (d * (e * e)))> board
+module type T = sig type t end
+type 'a ty = (module T with type t = 'a)
+type 'a tyw = Ty
+
+module Builder = struct
+  type _ t =
+    | []: e t
+    | (::): 'a case * 'b t -> ('a * 'b) t
+
+
+  let typeOf (type x) (_: x tyw): x ty =
+    (module struct type t = x end)
+  let start (x:'a t) =
+    typeOf(Ty: <left:e; at: empty free; right:'a; player:empty_handed player> tyw)
+end
+
+let st = Builder.[Case;Key;Key;Case;Door;Door;Case]
+module Start = (val Builder.start st)
 
 type 'a stop = <right: e; .. >  as 'a
 type 'arg right =
   <
-    left:'at free case*'l
+    left:'at free *'l
   ; player:'p
   ; at:'r free
   ; right:'r2
@@ -43,14 +57,14 @@ type 'arg right =
     left:'l;
     player:'p;
     at:'at free;
-    right:'r free case * 'r2
+    right:'r free  * 'r2
   > board
 
 type 'arg left =
-  <left:'l2; at:'l free; right:'at free case * 'r; player:'p> board
+  <left:'l2; at:'l free; right:'at free * 'r; player:'p> board
   constraint 'arg =
     <left:
-       'l free case* 'l2;
+       'l free * 'l2;
      at:'at free;
      right:'r;
      player:'p;
@@ -78,7 +92,7 @@ type 'arg open_door =
 constraint 'arg = <
   left:'l;
   player: with_key player;
-  right: door case * 'r;
+  right: door * 'r;
   at:'at
 >
 
@@ -90,14 +104,23 @@ type ('a,'b) move =
   | O: ('arg, 'arg open_door) move
 
 type _ play =
-  | []: start play
+  | []: Start.t play
   | (::): ('a,'b) move * 'a play -> 'b play
 
 let s = []
 let n1 = [R]
-let t = [K;R;R]
+let t = [O;R;K;R]
 
+(*
 let win: _ stop play -> unit = function
   | [_;_;_;_;_;_;_] -> .
+  | [_;_;_;_;_;_;_;_] -> .
+  | [_;_;_;_;_;_;_;_;_] -> .
+  | [_;_;_;_;_;_;_;_;_;_] -> .
+  | [_;_;_;_;_;_;_;_;_;_;_] -> .
+  | [_;_;_;_;_;_;_;_;_;_;_;_] -> .
+  | [_;_;_;_;_;_;_;_;_;_;_;_;_] -> .
+
   | [_] -> .
   | _ -> .
+*)
