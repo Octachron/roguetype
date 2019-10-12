@@ -40,7 +40,7 @@ type 'a tyw = Ty
 module Builder = struct
   type _ t =
     | []: e t
-    | (::): 'a case_builder * 'b t -> ('a * 'b) t
+    | (::): 'a case_builder * 'b t -> ('a -> 'b) t
 
 
   let typeOf (type x) (_: x tyw): x ty =
@@ -56,28 +56,28 @@ module Start = (val Builder.start ~left ~right)
 type 'a stop = <right: e; .. >  as 'a
 type 'arg right =
   <
-    left:'at * ( <now:'l1; after:'la2; back:'l1> * 'l)
+    left:'at -> <now:'l1; after:'la2; back:'l1> -> 'l
   ; player:'p
   ; at: <back:'back free; now:'back free; after:'after>
-  ; right:<now:'after; back:'r2; after:'a2> * 'r3
+  ; right:<now:'after; back:'r2; after:'a2> -> 'r3
   > board
   constraint 'arg = <
-    left:<back:'l1; after:'la2; ..> * 'l;
+    left:<back:'l1; after:'la2; ..> -> 'l;
     player:'p;
     at:'at;
-    right:<now:'r free;after:'after; back:'back free> * ( <now:'r2; after:'a2; ..> * 'r3)
+    right:<now:'r free;after:'after; back:'back free> -> <now:'r2; after:'a2; ..> -> 'r3
   > board
 
 type 'arg left =
-  <left: <now:'la; back:'l2; after: 'l2a> * 'l3;
+  <left: <now:'la; back:'l2; after: 'l2a> -> 'l3;
    at:  <back:'back free; now:'back free; after:'la>;
-   right:'at * (<now:'r1b; back:'r1b; after:'r1a> * 'r2);
+   right:'at -> <now:'r1b; back:'r1b; after:'r1a> -> 'r2;
    player:'p
   > board
   constraint 'arg =
-    <left: <now:'l free; after:'la; back:'back free> * (<now:'l2; back:_; after:'l2a> * 'l3);
+    <left: <now:'l free; after:'la; back:'back free> -> <now:'l2; back:_; after:'l2a> -> 'l3;
      at:'at;
-     right: <now:_; back:'r1b; after:'r1a> * 'r2;
+     right: <now:_; back:'r1b; after:'r1a> -> 'r2;
      player:'p;
     > board
 
@@ -96,14 +96,14 @@ constraint 'arg =  <
   >
 
 type 'arg open_door =
-  <left: <now:'lb; after:'la; back:'lb> * 'l;
+  <left: <now:'lb; after:'la; back:'lb> -> 'l;
    player: <left_hand:empty; right_hand: 'rh>;
-   right: <now:'rb; after:'ra; back:'rb> * 'r;
+   right: <now:'rb; after:'ra; back:'rb> -> 'r;
    at: e hcase >
 constraint 'arg = <
-  left: <back:'lb; after:'la; ..> * 'l;
+  left: <back:'lb; after:'la; ..> -> 'l;
   player: <left_hand:key; right_hand:'rh>;
-  right: <back:'rb; after:'ra; ..>  * 'r;
+  right: <back:'rb; after:'ra; ..>  -> 'r;
   at: <now:door free; ..>
 >
 
