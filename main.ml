@@ -6,6 +6,7 @@ type _ free =
   | Key: key free
 type door = Door
 type wall = Wall
+type stair = Stair
 
 type 'p player = <left_hand:'a; right_hand:'b>
   constraint 'p = 'a * 'b
@@ -23,6 +24,7 @@ type _ case_builder =
   | Case: empty free hcase case_builder
   | Key: key free hcase case_builder
   | Door: cdoor case_builder
+  | Stair: stair free hcase case_builder
 
 type 'a board = 'a
     constraint 'a = < left:'l; player:'p player; at:'c case; right: 'r >
@@ -48,7 +50,7 @@ module Builder = struct
 end
 
 let left = Builder.[Case;Door; Key;Key;Case;Case]
-let right = Builder.[Case; Key; Door; Door; Case;Case]
+let right = Builder.[Case; Key; Door; Door; Stair;Case]
 module Start = (val Builder.start ~left ~right)
 
 type 'a stop = <right: e; .. >  as 'a
@@ -120,7 +122,7 @@ constraint 'arg =  <
   >
 
 type winning = Win
-type 'a the_end = winning constraint 'a = <right:_ * e; ..>
+type 'a the_end = winning constraint 'a = <at: stair free hcase; ..>
 
 
 
