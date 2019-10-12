@@ -134,11 +134,21 @@ type ('a,'b) move =
   | O: ('arg, 'arg open_door) move
   | End: ('arg, 'arg the_end) move
 
-type _ play =
-  | []: Start.t play
-  | (::): ('a,'b) move * 'a play -> 'b play
+type _ path =
+  | []: ('a -> 'a) path
+  | (::): ('a,'b) move * ('s->'a) path -> ('s->'b) path
 
-let s = []
 
-let n1 = [O;R;R;R;R;R;R;R;T;L;T;L;O;L;L;L;L;T;R;R]
-let n2 =   End :: R :: O :: S :: R :: n1
+let rec (@):type a b c. (b -> c) path -> (a -> b) path -> (a -> c) path =
+  fun l r -> match l with
+  | [] -> r
+  | a :: l -> a :: ( l @ r)
+
+type 'a play = (Start.t -> 'a) path
+
+let play (x: _ play) = x
+
+let s = play []
+
+let n1 = play [O;R;R;R;R;R;R;R;T;L;T;L;O;L;L;L;L;T;R;R]
+let n2 =   [End; R; O; S; R] @ n1
