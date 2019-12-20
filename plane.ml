@@ -1,22 +1,26 @@
+type  'a zip = 'a constraint
+  'a = <l:'l; m:'m; r:'r>
+
+
 type 'p col = 'p constraint
   'p = <
-    up:'a -> 'b -> 'c -> 'd;
-    mi:'mid;
-    dw: 'e -> 'f -> 'g -> 'h
-  >
+    l:'a -> 'b -> 'c -> 'd;
+    m:'mid;
+    r: 'e -> 'f -> 'g -> 'h
+  > zip
 
 type 'p cols = 'p constraint
   'p = <
-    le:'a col -> 'b col -> 'c col -> 'd col;
-    mi:'mid col;
-    ri: 'e col -> 'f col -> 'g col -> 'h col
-  >
+    l:'a col -> 'b col -> 'c col -> 'd col;
+    m:'mid col;
+    r: 'e col -> 'f col -> 'g col -> 'h col
+  > zip
 
 
-type 'a hcol = <
-  up: 'a -> 'a -> 'a -> 'a;
-  mi:'a;
-  dw:'a -> 'a -> 'a -> 'a
+type 'a hzip = <
+  l: 'a -> 'a -> 'a -> 'a;
+  m:'a;
+  r:'a -> 'a -> 'a -> 'a
 > col
 
 
@@ -28,50 +32,49 @@ type f = free
 type b = border
 
 type 'p cup =
-  <up: 'f -> 'g -> 'h -> border;
-   mi:'e;
-   dw:'mid -> 'a -> 'b -> 'c >
+  <l: 'f -> 'g -> 'h -> border;
+   m:'e;
+   r:'mid -> 'a -> 'b -> 'c >
   constraint
     'p = <
-    up:'e -> 'f -> 'g -> 'h;
-    mi:'mid;
-    dw:'a -> 'b -> 'c -> 'd >
+    l:'e -> 'f -> 'g -> 'h;
+    m:'mid;
+    r:'a -> 'b -> 'c -> 'd >
 
 type 'p up = <
-  le: 'a cup -> 'b cup -> 'c cup -> 'd cup;
-  mi: 'mid cup;
-  ri: 'e cup -> 'f cup -> 'g cup -> 'h cup
+  l: 'a cup -> 'b cup -> 'c cup -> 'd cup;
+  m: 'mid cup;
+  r: 'e cup -> 'f cup -> 'g cup -> 'h cup
   > cols
   constraint 'p = <
-    le: 'a col -> 'b col -> 'c col -> 'd col;
-    mi: (<up:free -> _; .. > as 'mid) col;
-    ri: 'e col -> 'f col -> 'g col -> 'h col
+    l: 'a col -> 'b col -> 'c col -> 'd col;
+    m: (<l:free -> _; .. > as 'mid) col;
+    r: 'e col -> 'f col -> 'g col -> 'h col
   > cols
 
 type 'p le = <
-  le: 'b -> 'c -> 'd -> border hcol ;
-  mi: 'a;
-  ri: 'mi -> 'e -> 'f -> 'g
+  l: 'b -> 'c -> 'd -> border hzip ;
+  m: 'a;
+  r: 'mi -> 'e -> 'f -> 'g
   > cols
   constraint 'p = <
-    le: (<mi:free; ..> as 'a) -> 'b -> 'c -> 'd;
-    mi:'mi;
-    ri: 'e -> 'f -> 'g -> 'h
+    l: (<m:free; ..> as 'a) -> 'b -> 'c -> 'd;
+    m:'mi;
+    r: 'e -> 'f -> 'g -> 'h
  > cols
 
 
 type ('f,'b) line = 'f -> 'f -> 'b -> 'b
 
-type ('a,'b) scol = < up: 'a ;mi:'b; dw:'a> col
+type ('a,'b) scol = < l: 'a ;m:'b; r:'a> col
 
-type ('a,'b) scols = < le: 'a ;mi:'b; ri:'a> cols
 
 type mcol = ((f,b) line, f) scol
 
 type start = (
-  (mcol, b hcol) line,
+  (mcol, b hzip) line,
   mcol
-) scols
+) scol
 
 type ('a,'b) move =
   | L: ('a, 'a le) move
