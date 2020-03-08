@@ -18,11 +18,58 @@ type 'p cols = 'p constraint
   > zip
 
 
+type border = Border
+type free = Free
+type f = free
+type b = border
+
+
 type 'a hzip = <
   l: 'a h;
   m: 'a;
   r: 'a h
 > col
+
+module Builder = struct
+  type _ elt =
+    | F: free elt
+    | W: border elt
+  type 'a l =
+    | []: (border -> border -> border) l
+    | (::): 'a elt * 'b l -> ('a -> 'b) l
+
+  type 'p bcol = 'l l * 'm elt * 'r l
+    constraint 'p = <l:'l; m:'m; r:'r >
+
+  type 'a ll =
+    | []: (border hzip -> border hzip -> border hzip) ll
+    | (::): 'p bcol * 'b ll -> ('p -> 'b) ll
+
+  type 'p bcols = 'l ll * 'm bcol * 'r ll
+    constraint 'p = <l:'l; m:'m; r:'r >
+
+  let mpos: _ l = [F;F;F]
+  let mid: _ bcol = mpos, F, mpos
+  let half = [ mid; mid; mid ]
+  let start: _ bcols =
+    [ [F; F; F], F, [F; F; F] ;
+      [F; F; F], F, [F; F; F] ;
+      [F; F; F], F, [F; F; F] ],
+    ( [F; F; F], F, [F; F; F] ),
+    [ [F; F; F], F, [F; F; F] ;
+      [F; F; F], F, [F; F; F] ;
+      [F; F; F], F, [F; F; F] ]
+
+  module type t = sig type t end
+  let typeof (type l ml m mr r) (x: <l:l; m:<l:ml;r:mr;m:m>; r: r> bcols) :
+    (module t with type t = <l:l; m:<l:ml;r:mr;m:m>; r: r>) =
+    (module struct
+      type t = <l:l; m:<l:ml;r:mr;m:m>; r: r>
+    end)
+
+  module S = (val typeof start)
+end
+
 
 
 type 'p first = 'a
@@ -38,11 +85,6 @@ type ('p,'x) pull = 'b -> 'c -> 'd -> 'e -> 'f -> 'x
 type ('x,'p) push = 'x -> 'a -> 'b -> 'c -> 'd -> 'e
   constraint 'p = 'a -> 'b -> 'c -> 'd -> 'e -> 'f
 
-type border = Border
-
-type free = Free
-type f = free
-type b = border
 
 
 type 'a is_free = 'a constraint 'a = free
@@ -120,7 +162,7 @@ type ('a,'b) move =
   | R: ('a,'a ri) move
 
 type _ path =
-  | []: start path
+  | []: Builder.S.t path
   | (::): ('a,'b) move * 'a path -> 'b path
 
 let s=[]
@@ -136,7 +178,7 @@ let s = [U;R] = [R;U]
 let s = [D;R] = [R;D]
 
 
-let hamiltonian (x: start path) = match x with
+let hamiltonian (x: Builder.S.t path) = match x with
   | [] -> ()
   | [_] -> .
   | [_;_] -> ()
