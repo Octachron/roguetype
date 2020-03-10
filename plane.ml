@@ -48,26 +48,6 @@ module Builder = struct
   type 'p bcols = 'l ll * 'm bcol * 'r ll
     constraint 'p = <l:'l; m:'m; r:'r >
 
-  let mpos: _ l = [F;F;F]
-  let mid: _ bcol = mpos, F, mpos
-  let half = [ mid; mid; mid ]
-  let start: _ bcols =
-    [ [F; F; F], F, [F; F; F] ;
-      [F; F; F], F, [F; F; F] ;
-      [F; F; F], F, [F; F; F] ],
-    ( [F; F; F], F, [F; F; F] ),
-    [ [F; F; F], F, [F; F; F] ;
-      [F; F; F], F, [F; F; F] ;
-      [F; F; F], F, [F; F; F] ]
-
-  module type t = sig type t end
-  let typeof (type l ml m mr r) (x: <l:l; m:<l:ml;r:mr;m:m>; r: r> bcols) :
-    (module t with type t = <l:l; m:<l:ml;r:mr;m:m>; r: r>) =
-    (module struct
-      type t = <l:l; m:<l:ml;r:mr;m:m>; r: r>
-    end)
-
-  module S = (val typeof start)
 end
 
 
@@ -161,26 +141,52 @@ type ('a,'b) move =
   | D: ('a, 'a dw) move
   | R: ('a,'a ri) move
 
-type _ path =
-  | []: Builder.S.t path
-  | (::): ('a,'b) move * 'a path -> 'b path
 
-let s=[]
-let s = [R;L] = []
-let s = [U;D] = []
-
-let t = [L;L;L;D;R;R;R] = [D]
-let w = [L;L;L;L;D;D;D;R;R;R]
-
-let s = [U;L] = [L;U]
-let s = [D;L] = [L;D]
-let s = [U;R] = [R;U]
-let s = [D;R] = [R;D]
+module type game = sig
+  type start
+  type _ path =
+    | []: start path
+    | (::): ('a,'b) move * 'a path -> 'b path
+end
 
 
-let hamiltonian (x: Builder.S.t path) = match x with
-  | [] -> ()
-  | [_] -> .
-  | [_;_] -> ()
-  | [_;_;_] -> .
-  | _ -> ()
+let game (type l ml m mr r) (x: <l:l; m:<l:ml;r:mr;m:m>; r: r> Builder.bcols):
+  (module game with type start = <l:l; m:<l:ml;r:mr;m:m>; r: r> )
+= (module struct
+  type start = <l:l; m:<l:ml;r:mr;m:m>; r: r>
+  type _ path =
+    | []: start path
+    | (::): ('a,'b) move * 'a path -> 'b path
+  end)
+
+module Level_test = (val game begin
+    [ [F; F; F], F, [F; F; F] ;
+      [F; F; F], F, [F; F; F] ;
+      [F; F; F], F, [F; F; F] ],
+    ( [F; F; F], F, [F; F; F] ),
+    [ [F; F; F], F, [F; F; F] ;
+      [F; F; F], F, [F; F; F] ;
+      [F; F; F], F, [F; F; F] ]
+  end)
+
+module Test = struct
+  open Level_test
+  let s=[]
+  let s = [R;L] = []
+  let s = [U;D] = []
+
+  let t = [L;L;L;D;R;R;R] = [D]
+  let w = [L;L;L;L;D;D;D;R;R;R]
+
+  let s = [U;L] = [L;U]
+  let s = [D;L] = [L;D]
+  let s = [U;R] = [R;U]
+  let s = [D;R] = [R;D]
+
+  let hamiltonian (x: start path) = match x with
+    | [] -> ()
+    | [_] -> .
+    | [_;_] -> ()
+    | [_;_;_] -> .
+    | _ -> ()
+end
