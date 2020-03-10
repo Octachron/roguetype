@@ -17,11 +17,16 @@ type 'p cols = 'p constraint
     r: 'e col -> 'f col -> 'g col -> 'h col -> 'r5 col -> 'r6 col
   > zip
 
+type true'
+type false'
 
-type border = Border
-type free = Free
+type border = <free:false'; stair: false'>
+type free = <free:true'; stair: false'>
 type f = free
 type b = border
+
+type won = Won
+type stair = <free:true'; stair:true'>
 
 
 type 'a hzip = <
@@ -34,18 +39,24 @@ module Builder = struct
   type _ elt =
     | F: free elt
     | W: border elt
+    | S: stair elt
   type 'a l =
     | []: (border -> border -> border) l
     | (::): 'a elt * 'b l -> ('a -> 'b) l
 
-  type 'p bcol = 'l l * 'm elt * 'r l
+  type 'p inv = 'c -> ' b -> 'a -> 'e -> 'f -> 'g
+    constraint 'p = 'a -> 'b -> 'c -> 'e -> 'f -> 'g
+
+  type 'p bcol = 'l inv l * 'm elt * 'r l
     constraint 'p = <l:'l; m:'m; r:'r >
+
+
 
   type 'a ll =
     | []: (border hzip -> border hzip -> border hzip) ll
     | (::): 'p bcol * 'b ll -> ('p -> 'b) ll
 
-  type 'p bcols = 'l ll * 'm bcol * 'r ll
+  type 'p bcols = 'l inv ll * 'm bcol * 'r ll
     constraint 'p = <l:'l; m:'m; r:'r >
 
 end
@@ -67,8 +78,8 @@ type ('x,'p) push = 'x -> 'a -> 'b -> 'c -> 'd -> 'e
 
 
 
-type 'a is_free = 'a constraint 'a = free
-type 'a mfree = < m: free; ..> as 'a
+type 'a is_free = 'a constraint 'a = <free:true'; ..>
+type 'a mfree = < m: <free:true'; ..> ; ..> as 'a
 
 type 'p l = 'l
   constraint 'p = <l:'l; .. >
@@ -140,6 +151,7 @@ type ('a,'b) move =
   | U: ('a, 'a up) move
   | D: ('a, 'a dw) move
   | R: ('a,'a ri) move
+  | Escape: (<m: <m:<stair:true'; ..> ; .. >; .. >, won) move
 
 
 module type game = sig
@@ -150,10 +162,11 @@ module type game = sig
 end
 
 
-let game (type l ml m mr r) (x: <l:l; m:<l:ml;r:mr;m:m>; r: r> Builder.bcols):
-  (module game with type start = <l:l; m:<l:ml;r:mr;m:m>; r: r> )
+let game (type a b c d e f g ma mb mc md me mf l m mr r)
+    (x: <l:a->b->c->d->e->f; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r> Builder.bcols):
+  (module game with type start = <l:a->b->c->d->e->f; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r> )
 = (module struct
-  type start = <l:l; m:<l:ml;r:mr;m:m>; r: r>
+  type start = <l:a->b->c->d->e->f; m:<l:ma ->mb->mc->md->me-> mf;r:mr;m:m>; r: r>
   type _ path =
     | []: start path
     | (::): ('a,'b) move * 'a path -> 'b path
@@ -189,4 +202,21 @@ module Test = struct
     | [_;_] -> ()
     | [_;_;_] -> .
     | _ -> ()
+end
+
+
+module Level0 = struct
+  module G= (val game begin
+    [ [F; F; W], F, [F; F; F] ;
+      [F; F; F], F, [W; W; F] ;
+      [F; F; F], W, [W; W; F] ],
+    ( [W; F; W], F, [F; F; F] ),
+    [ [F; F; W], F, [W; W; W] ;
+      [F; W; W], F, [F; F; W] ;
+      [F; S; W], W, [W; W; W] ]
+  end)
+  open G
+  let s = []
+  let path = Escape::D::R::R::U::R::R::R::U::U::R::U::U::U::L::L::L::D::D::D::[]
+
 end
