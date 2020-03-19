@@ -20,8 +20,16 @@ type 'p cols = 'p constraint
 type true'
 type false'
 
-type border = <free:false'; stair: false'>
-type free = <free:true'; stair: false'>
+module Inventory = struct
+  type empty = Empty
+  type 'a pickable = P
+  type key = Key
+end
+
+type border = <free:false'; stair: false'; floor:Inventory.empty>
+type free = <free:true'; stair: false'; floor:Inventory.empty>
+type key = <free:true'; stair:false'; floor: Inventory.key Inventory.pickable>
+
 type f = free
 type b = border
 
@@ -35,11 +43,19 @@ type 'a hzip = <
   r: 'a h
 > col
 
+type ('a,'b) state =
+  < world:'a; player:'b>
+
+
+
+type player_start = < left_hand:Inventory.empty; right_hand:Inventory.empty >
+
 module Builder = struct
   type _ elt =
     | F: free elt
     | W: border elt
     | S: stair elt
+    | K: key elt
   type 'a l =
     | []: (border -> border -> border) l
     | (::): 'a elt * 'b l -> ('a -> 'b) l
@@ -146,50 +162,90 @@ type start = (
   mcol
 ) scol
 
-type ('a,'b) move =
-  | L: ('a, 'a le) move
-  | U: ('a, 'a up) move
-  | D: ('a, 'a dw) move
-  | R: ('a,'a ri) move
-  | Escape: (<m: <m:<stair:true'; ..> ; .. >; .. >, won) move
+type 'a world = 'world constraint 'a = <world:'world; ..>
+type 'a player = 'world constraint 'a = <world:'world; ..>
+
+type ('a,'b) wmove = 'a -> <world: 'b; player:'p>
+  constraint 'a = <world:'w; player:'p>
+
+
+type 'a p = 'player
+  constraint 'a = <player: 'player; ..>
+
+type 'a left_hand = 'lh constraint 'a = <left_hand:'lh; ..>
+type 'a right_hand = 'x constraint 'a = <right_hand:'x; ..>
+type 'a fl = 'f constraint 'a = <floor:'f Inventory.pickable; ..>
+
+type 'a st = 'f constraint 'a = <stair:'f; ..>
+
+
+
+type 'a pick = <
+  world:
+    <l:'a l; r:'a r;
+     m: <l:'a m l;r:'a m r;
+         m:<floor:Inventory.empty; free:true'; stair:'a m m st>
+        >
+    >;
+  player:<left_hand:'a m m fl; right_hand:'a p right_hand>
+>
+
+
+type 'a move =
+  | L: ('a, 'a world le ) wmove move
+  | U: ('a, 'a world up) wmove move
+  | D: ('a, 'a world dw) wmove move
+  | R: ('a,'a world ri) wmove move
+  | P: ('a -> 'a pick) move
+  | Escape:  (<stair:true'; ..> m m world, won) wmove move
 
 
 module type game = sig
   type start
   type _ path =
     | []: start path
-    | (::): ('a,'b) move * 'a path -> 'b path
+    | (::): ('a -> 'b) move * 'a path -> 'b path
 end
 
 
-let game (type a b c d e f g ma mb mc md me mf l m mr r)
-    (x: <l:a->b->c->d->e->f; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r> Builder.bcols):
-  (module game with type start = <l:a->b->c->d->e->f; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r> )
+let game (type a b c d e f ma mb mc md me mf m mr r)
+    (_: <l:a->b->c->d->e->f; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r> Builder.bcols):
+  (module game
+    with type start =
+           <player:player_start;
+            world:<l:a->b->c->d->e->f; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r>
+                  >)
 = (module struct
-  type start = <l:a->b->c->d->e->f; m:<l:ma ->mb->mc->md->me-> mf;r:mr;m:m>; r: r>
+  type start = <player: player_start; world:<l:a->b->c->d->e->f; m:<l:ma ->mb->mc->md->me-> mf;r:mr;m:m>; r: r> >
   type _ path =
     | []: start path
-    | (::): ('a,'b) move * 'a path -> 'b path
+    | (::): ('a->'b) move * 'a path -> 'b path
   end)
 
 module Level_test = (val game begin
     [ [F; F; F], F, [F; F; F] ;
-      [F; F; F], F, [F; F; F] ;
+      [F; F; F], F, [F; K; F] ;
       [F; F; F], F, [F; F; F] ],
     ( [F; F; F], F, [F; F; F] ),
-    [ [F; F; F], F, [F; F; F] ;
+    [ [F; K; F], F, [F; F; F] ;
       [F; F; F], F, [F; F; F] ;
       [F; F; F], F, [F; F; F] ]
   end)
 
 module Test = struct
   open Level_test
-  let s=[]
-  let s = [R;L] = []
+  let _ =[]
+
+
+  let _ = [R;L] = []
+(*
+
   let s = [U;D] = []
+
 
   let t = [L;L;L;D;R;R;R] = [D]
   let w = [L;L;L;L;D;D;D;R;R;R]
+
 
   let s = [U;L] = [L;U]
   let s = [D;L] = [L;D]
@@ -202,8 +258,9 @@ module Test = struct
     | [_;_] -> ()
     | [_;_;_] -> .
     | _ -> ()
-end
+*)
 
+end
 
 module Level0 = struct
   module G= (val game begin
