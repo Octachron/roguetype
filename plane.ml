@@ -26,15 +26,31 @@ module Inventory = struct
   type key = Key
 end
 
-type border = <free:false'; stair: false'; floor:Inventory.empty>
-type free = <free:true'; stair: false'; floor:Inventory.empty>
-type key = <free:true'; stair:false'; floor: Inventory.key Inventory.pickable>
+module Previous = struct
+  type left = Left
+  type right = Right
+  type down = Down
+  type up = Up
+  type none = None
+end
+
+
+module Events = struct
+  type door = Door
+  type stair = Stair
+end
+
+type border = <event:false'; free:false'; floor:Inventory.empty>
+type free = <event:false'; free:true'; floor:Inventory.empty>
+type key = <event:false'; free:true'; floor: Inventory.key Inventory.pickable>
+type stair = <free:true';  event:Events.stair; floor:Inventory.empty>
+type door = <event: Events.door; free:true'; stair:false'; floor: Inventory.key Inventory.pickable>
+
 
 type f = free
 type b = border
 
 type won = Won
-type stair = <free:true'; stair:true'>
 
 
 type 'a hzip = <
@@ -48,7 +64,7 @@ type ('a,'b) state =
 
 
 
-type player_start = < left_hand:Inventory.empty; right_hand:Inventory.empty >
+type player_start = < left_hand:Inventory.empty; right_hand:Inventory.empty; back:Previous.none >
 
 module Builder = struct
   type _ elt =
@@ -56,6 +72,7 @@ module Builder = struct
     | W: border elt
     | S: stair elt
     | K: key elt
+    | D: door elt
   type 'a l =
     | []: (border -> border -> border) l
     | (::): 'a elt * 'b l -> ('a -> 'b) l
@@ -165,12 +182,23 @@ type start = (
 type 'a world = 'world constraint 'a = <world:'world; ..>
 type 'a player = 'world constraint 'a = <world:'world; ..>
 
-type ('a,'b) wmove = 'a -> <world: 'b; player:'p>
-  constraint 'a = <world:'w; player:'p>
-
 
 type 'a p = 'player
   constraint 'a = <player: 'player; ..>
+type 'a w = 'w
+  constraint 'a = <world: 'w; ..>
+
+
+type ('a,'b, 'c) wmove = 'a -> <world: 'b; player: <left_hand:'lh; right_hand:'rh; back:'c> >
+  constraint 'a = <world:'w; player: <left_hand:'lh; right_hand:'rh; back:'back> >
+
+type 'a event = 'event
+  constraint 'a = < event:'event; ..>
+
+type ('a,'b,'c) eventless = ('a,'b,'c) wmove
+    constraint
+      'a w m m event = false'
+
 
 type 'a left_hand = 'lh constraint 'a = <left_hand:'lh; ..>
 type 'a right_hand = 'x constraint 'a = <right_hand:'x; ..>
@@ -182,22 +210,45 @@ type 'a st = 'f constraint 'a = <stair:'f; ..>
 
 type 'a pick = <
   world:
-    <l:'a l; r:'a r;
-     m: <l:'a m l;r:'a m r;
-         m:<floor:Inventory.empty; free:true'; stair:'a m m st>
+    <l:'w l; r:'w r;
+     m: <l:'m l;r:'m r;
+         m:free
         >
     >;
-  player:<left_hand:'a m m fl; right_hand:'a p right_hand>
+  player:<left_hand:'m m fl; right_hand:'a p right_hand; back:Previous.none>
+>
+  constraint 'w = 'a w
+  constraint 'm = 'w m
+
+
+type 'a swap = <
+  world: 'a world;
+  player:<left_hand:'a p right_hand fl; right_hand:'a p left_hand; back:Previous.none>
 >
 
+type 'a open_door = <
+  player:<left_hand:Inventory.empty; right_hand:'a p right_hand; back:Previous.none >;
+  world:<
+    l:'a world l;
+    r: 'a world r;
+    m: <l:'a world m l; m:free; r:'a world m r>;
+  >
+> constraint
+  'a w m m event = Events.door
+  constraint
+  'a p left_hand = Inventory.key
 
 type 'a move =
-  | L: ('a, 'a world le ) wmove move
-  | U: ('a, 'a world up) wmove move
-  | D: ('a, 'a world dw) wmove move
-  | R: ('a,'a world ri) wmove move
+  | L: ('a, 'a world le, Previous.right ) eventless move
+  | U: ('a, 'a world up, Previous.down ) eventless move
+  | D: ('a, 'a world dw, Previous.up ) eventless move
+  | R: ('a,'a world ri, Previous.left ) eventless move
+
   | P: ('a -> 'a pick) move
-  | Escape:  (<stair:true'; ..> m m world, won) wmove move
+  | S: ('a -> 'a swap) move
+  | O: ('a -> 'a open_door) move
+
+  | Escape:  (<stair:true'; ..> m m world, won, Previous.none) wmove move
 
 
 module type game = sig
@@ -222,13 +273,14 @@ let game (type a b c d e f ma mb mc md me mf m mr r)
     | (::): ('a->'b) move * 'a path -> 'b path
   end)
 
+(*
 module Level_test = (val game begin
-    [ [F; F; F], F, [F; F; F] ;
+    [ [K; F; F], F, [F; F; F] ;
       [F; F; F], F, [F; K; F] ;
       [F; F; F], F, [F; F; F] ],
     ( [F; F; F], F, [F; F; F] ),
     [ [F; K; F], F, [F; F; F] ;
-      [F; F; F], F, [F; F; F] ;
+      [F; F; F], F, [F; F; K] ;
       [F; F; F], F, [F; F; F] ]
   end)
 
@@ -238,7 +290,6 @@ module Test = struct
 
 
   let _ = [R;L] = []
-(*
 
   let s = [U;D] = []
 
@@ -258,22 +309,23 @@ module Test = struct
     | [_;_] -> ()
     | [_;_;_] -> .
     | _ -> ()
-*)
 
 end
+*)
 
 module Level0 = struct
   module G= (val game begin
     [ [F; F; W], F, [F; F; F] ;
       [F; F; F], F, [W; W; F] ;
       [F; F; F], W, [W; W; F] ],
-    ( [W; F; W], F, [F; F; F] ),
+    ( [W; F; W], F, [K; D; F] ),
     [ [F; F; W], F, [W; W; W] ;
       [F; W; W], F, [F; F; W] ;
       [F; S; W], W, [W; W; W] ]
   end)
   open G
   let s = []
-  let path = Escape::D::R::R::U::R::R::R::U::U::R::U::U::U::L::L::L::D::D::D::[]
+  let p = [D;O;D;P;D]
+  let path = Escape::D::R::R::U::R::R::R::U::U::R::U::U::U::L::L::L::D::O::D::P::D::[]
 
 end
