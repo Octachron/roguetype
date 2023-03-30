@@ -17,14 +17,8 @@ type 'p cols = 'p constraint
     r: 'e col -> 'f col -> 'g col -> 'h col -> 'r5 col -> 'r6 col
   > zip
 
-type true'
-type false'
-
-module Inventory = struct
-  type empty = Empty
-  type 'a pickable = P
-  type key = Key
-end
+type yes = True
+type no = False
 
 module Previous = struct
   type left = Left
@@ -34,24 +28,102 @@ module Previous = struct
   type none = None
 end
 
-
-module Events = struct
-  type door = Door
-  type stair = Stair
+module Inventory = struct
+  type none = None
+  type key = Key
+  type dagger = Dagger
+  type sword = Sword
+  type mithril_sword = Mithril_sword
+  type axe = Axe
+  type pickaxe = Axe
+  type greatsword = Great_sword
+  type 'a arrow = Arrow of 'a
+  type minor_health_potion = Minor_health_potion
+  type major_health_potion = Minor_health_potion
+  type stamina_potion = Stamina_potion
+  type regeneration_potion = Regeneration_potion
+  type ring_of_fire = Ring_of_fire
+  type ring_of_water = Ring_of_water
 end
 
-type border = <event:false'; free:false'; floor:Inventory.empty>
-type free = <event:false'; free:true'; floor:Inventory.empty>
-type key = <event:false'; free:true'; floor: Inventory.key Inventory.pickable>
-type stair = <free:true';  event:Events.stair; floor:Inventory.empty>
-type door = <event: Events.door; free:true'; stair:false'; floor: Inventory.key Inventory.pickable>
+module Obstacle = struct
+  type tree = Tree
+  type rock = Rock
+  type fire = Fire
+end
 
 
-type f = free
-type b = border
+module Integer_range = struct
+
+  type token = Token
+  type none = None
+  module Modifier = struct
+    type 'a one = token -> 'a
+    type 'a two = 'a one one
+    type 'a three = 'a one two
+    type 'a four = 'a two two
+    type 'a eight = 'a four four
+  end
+
+
+  type 'a start = <current:'a; potential: none>
+
+  type one = (token -> none) start
+  type two = (token -> token -> none) start
+  type three = (token -> token -> token -> none) start
+  type four = (token -> token -> token -> none) start
+  type ten = none Modifier.two Modifier.eight start
+end
+module R = Integer_range
+
+
+module Enemy_kind = struct
+
+  module Kind = struct
+    type snake = Snake
+    type goblin = Goblin
+    type orc = Orc
+    type dragon = Dragon
+    type ranged = Ranged
+    type close_quarter = Close_quarter
+  end
+
+  module Template = struct
+    open Integer_range
+    type snake =
+      <kind:Kind.snake; rage:one; health:one >
+    type goblin =
+      <kind:Kind.goblin; rage:one; health:two >
+    type orc =
+      <kind:Kind.orc; rage:two; health:two >
+    type dragon =
+      <kind:Kind.dragon; rage:ten; health:ten >
+
+    type ranged = Ranged
+    type close_quarter = Close_quarter
+  end
+
+end
+
+module Case = struct
+  type door = Door
+  type stair = Stair
+  type 'a obstacle = Obstacle of 'a
+  type 'a enemy = Enemy of 'a
+  type 'a floor = Floor of 'a
+  type free = Inventory.none floor
+  type border = Border
+end
+
+module Nat = struct
+  type z = Z
+  type 'a s = Succ of 'a
+end
+
+type f = Case.free
+type b = Case.border
 
 type won = Won
-
 
 type 'a hzip = <
   l: 'a h;
@@ -59,19 +131,39 @@ type 'a hzip = <
   r: 'a h
 > col
 
-type ('a,'b) state =
-  < world:'a; player:'b>
+type eye_view = Eye_view
+type main = Physical_position
+type 'a event = Event of 'a
 
+type ('a,'b,'c,'d) state =
+  < world:'a; player:'b; history:'c; mode:'d>
+ 
+type 'a action_mode = 'm
+  constraint 'a = < mode:'m; .. >
 
+type history_start = < path: Previous.none; len:Nat.z >
 
-type player_start = < left_hand:Inventory.empty; right_hand:Inventory.empty; back:Previous.none >
+type player_start =
+  <
+    inventory: <
+      left_hand:Inventory.none;
+      right_hand:Inventory.none;
+    >;
+    exp:Nat.z;
+    status : <
+      health: Integer_range.two;
+      stamina: Integer_range.four;
+      mana: Integer_range.two;
+    >
+  >
 
 module Builder = struct
+  open Case
   type _ elt =
     | F: free elt
     | W: border elt
     | S: stair elt
-    | K: key elt
+    | K: Inventory.key floor elt
     | D: door elt
   type 'a l =
     | []: (border -> border -> border) l
@@ -111,8 +203,9 @@ type ('x,'p) push = 'x -> 'a -> 'b -> 'c -> 'd -> 'e
 
 
 
-type 'a is_free = 'a constraint 'a = <free:true'; ..>
-type 'a mfree = < m: <free:true'; ..> ; ..> as 'a
+type 'a is_free = 'a constraint 'a = 'b Case.floor
+type 'a mfree = 'a
+  constraint 'a = < m: 'b is_free ; ..>
 
 type 'p l = 'l
   constraint 'p = <l:'l; .. >
@@ -149,19 +242,19 @@ type 'p up = <
   r: 'p r lcup
   > cols
 
-type 'p dw = <
+type 'p down = <
   l: 'p l lcdw;
   m: 'p m cdw mfree;
   r: 'p r lcdw
   > cols
 
-type 'p le = <
+type 'p left = <
   l: ('p l, b hzip) pull;
   m: 'p l first mfree;
   r: ('p m, 'p r) push
   > cols
 
-type 'p ri = <
+type 'p right = <
   l: ('p m, 'p l) push;
   m: 'p r first mfree;
   r: ('p r, b hzip) pull
@@ -180,7 +273,7 @@ type start = (
 ) scol
 
 type 'a world = 'world constraint 'a = <world:'world; ..>
-type 'a player = 'world constraint 'a = <world:'world; ..>
+type 'a player = 'player constraint 'a = <player:'player; ..>
 
 
 type 'a p = 'player
@@ -189,36 +282,76 @@ type 'a w = 'w
   constraint 'a = <world: 'w; ..>
 
 
-type ('a,'b, 'c) wmove = 'a -> <world: 'b; player: <left_hand:'lh; right_hand:'rh; back:'c> >
-  constraint 'a = <world:'w; player: <left_hand:'lh; right_hand:'rh; back:'back> >
-
-type 'a event = 'event
-  constraint 'a = < event:'event; ..>
-
-type ('a,'b,'c) eventless = ('a,'b,'c) wmove
-    constraint
-      'a w m m event = false'
+type ('a,'b, 'c) wmove =
+  'a -> <world: 'b; player: 'p; mode:'m;
+         history:<len:'len Nat.s; path:('c -> 'path) > >
+  constraint 'a =
+    < world:'w; player:'p; mode:'m; history:'h >
+  constraint 'm = <move:yes; .. >
+  constraint 'h = <len:'len; path:'path>
 
 
-type 'a left_hand = 'lh constraint 'a = <left_hand:'lh; ..>
-type 'a right_hand = 'x constraint 'a = <right_hand:'x; ..>
-type 'a fl = 'f constraint 'a = <floor:'f Inventory.pickable; ..>
+type ('a,'b, 'c) return_move =
+  'a -> <world: 'b; player: 'p; mode:'m;
+         history:<len:'len; path:'path > >
+  constraint 'a =
+    < world:'w; player:'p; mode:'m; history:'h >
+  constraint 'm = <move:yes; .. >
+  constraint 'h = <len:'len Nat.s; path: 'c -> 'path>
 
-type 'a st = 'f constraint 'a = <stair:'f; ..>
 
+type ('a,'b) reset_move =
+  'a -> <world: 'b; player: 'p; mode:'m; history:history_start >
+  constraint 'a =
+    <world:'w; player:'p; mode:'m; history:'h >
+  constraint 'm = <move:yes; .. >
+
+
+type 'a left_hand = 'lh
+  constraint
+    'a = <inventory:'i; ..>
+  constraint
+    'i = <left_hand:'lh; .. >
+type 'a right_hand = 'x
+  constraint 'a = <inventory:'i; .. >
+  constraint 'i = <right_hand:'x; ..>
+type 'a fl = 'f constraint 'a = 'f Case.floor
+
+
+type 'a exp = 'exp
+  constraint 'a = <exp:'exp; .. >
+
+type 'a history = 'h
+  constraint 'a = <history:'h; .. >
+
+type 'a status = 'st
+  constraint 'a = <status:'st; .. >
+
+type main_mode = <tag:main; move:yes>
+type eye_mode = <tag:eye_view; move:yes>
 
 
 type 'a pick = <
   world:
     <l:'w l; r:'w r;
      m: <l:'m l;r:'m r;
-         m:free
+         m:Case.free
         >
     >;
-  player:<left_hand:'m m fl; right_hand:'a p right_hand; back:Previous.none>
+  player:<
+    inventory: <left_hand:'m m fl; right_hand:'a p right_hand>;
+    status: 'status;
+    exp:'exp
+  >;
+  history:history_start;
+  mode:'mode;
 >
   constraint 'w = 'a w
   constraint 'm = 'w m
+  constraint 'p = 'a p
+  constraint 'p = <status:'status; exp:'exp; .. >
+  constraint 'mode = 'a action_mode
+  constraint 'mode = main_mode
 
 
 type 'a swap = <
@@ -227,28 +360,64 @@ type 'a swap = <
 >
 
 type 'a open_door = <
-  player:<left_hand:Inventory.empty; right_hand:'a p right_hand; back:Previous.none >;
+  player:<
+    inventory: <left_hand:Inventory.none; right_hand:'rh>;
+    status: 'p status;
+    exp: 'p exp;
+  >;
   world:<
     l:'a world l;
     r: 'a world r;
-    m: <l:'a world m l; m:free; r:'a world m r>;
-  >
-> constraint
-  'a w m m event = Events.door
+    m: <l:'a world m l; m:Case.free; r:'a world m r>;
+  >;
+  history:'a history;
+  mode: 'mode
+>
   constraint
-  'a p left_hand = Inventory.key
+  'a w m m = Case.door
+  constraint
+    'p = 'a p
+  constraint
+    'p = < inventory:<left_hand:Inventory.key; right_hand:'rh>; .. >
+  constraint
+    'a action_mode = 'mode
+  constraint
+    'mode = eye_mode
+
+type 'a escape = 'a
+  constraint 'a w m m = Case.stair
+
+type 'a eye_switch =
+  'a -> < world:'w; mode:eye_mode; history:history_start; player:'p>
+  constraint
+    'a = <player:'p; world:'w; mode:main_mode; .. >
+
+type 'a main_switch =
+  'a -> <player:'p; world:'w; mode:main_mode; history:'h >
+  constraint
+    'a = < world:'w; mode:eye_mode; history:history_start as 'h; player:'p>
+
 
 type 'a move =
-  | L: ('a, 'a world le, Previous.right ) eventless move
-  | U: ('a, 'a world up, Previous.down ) eventless move
-  | D: ('a, 'a world dw, Previous.up ) eventless move
-  | R: ('a,'a world ri, Previous.left ) eventless move
+  | L: ('a, 'a world left, Previous.right ) wmove move
+  | U: ('a, 'a world up, Previous.down ) wmove move
+  | D: ('a, 'a world down, Previous.up ) wmove move
+  | R: ('a,'a world right, Previous.left ) wmove move
+
+  | UL: ('a, 'a world left, Previous.left ) return_move move
+  | UU: ('a, 'a world up, Previous.up ) return_move move
+  | UD: ('a, 'a world down, Previous.down ) return_move move
+  | UR: ('a,'a world right, Previous.right ) return_move move
+
+
+  | ME: 'a eye_switch move
+  | MM: 'a main_switch move
 
   | P: ('a -> 'a pick) move
   | S: ('a -> 'a swap) move
   | O: ('a -> 'a open_door) move
 
-  | Escape:  (<stair:true'; ..> m m world, won, Previous.none) wmove move
+  | Escape:  ('a escape, won) reset_move move
 
 
 module type game = sig
@@ -258,16 +427,23 @@ module type game = sig
     | (::): ('a -> 'b) move * 'a path -> 'b path
 end
 
+type 'a game_start =
+  <world:'a;
+   player: player_start;
+   mode: main_mode;
+   history: history_start;
+  >
+
 
 let game (type a b c d e f ma mb mc md me mf m mr r)
     (_: <l:a->b->c->d->e->f; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r> Builder.bcols):
   (module game
     with type start =
-           <player:player_start;
-            world:<l:a->b->c->d->e->f; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r>
-                  >)
+           <l:a->b->c->d->e->f; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r> game_start
+  )
 = (module struct
-  type start = <player: player_start; world:<l:a->b->c->d->e->f; m:<l:ma ->mb->mc->md->me-> mf;r:mr;m:m>; r: r> >
+  type start =
+    <l:a->b->c->d->e->f; m:<l:ma ->mb->mc->md->me-> mf;r:mr;m:m>; r: r> game_start
   type _ path =
     | []: start path
     | (::): ('a->'b) move * 'a path -> 'b path
@@ -325,7 +501,8 @@ module Level0 = struct
   end)
   open G
   let s = []
-  let p = [D;O;D;P;D]
+  let p = [D;ME;P;D]
+  let p = [D;MM;UD;O;D;ME;P;D]
   let path = Escape::D::R::R::U::R::R::R::U::U::R::U::U::U::L::L::L::D::O::D::P::D::[]
 
 end
