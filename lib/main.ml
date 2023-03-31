@@ -1,3 +1,5 @@
+open Generic
+
 type  'a zip = 'a constraint
   'a = <l:'l; m:'m; r:'r>
 
@@ -17,8 +19,6 @@ type 'p cols = 'p constraint
     r: 'e col -> 'f col -> 'g col -> 'h col -> 'r5 col -> 'r6 col
   > zip
 
-type yes = True
-type no = False
 
 module Previous = struct
   type left = Left
@@ -26,24 +26,6 @@ module Previous = struct
   type down = Down
   type up = Up
   type none = None
-end
-
-module Inventory = struct
-  type none = None
-  type key = Key
-  type dagger = Dagger
-  type sword = Sword
-  type mithril_sword = Mithril_sword
-  type axe = Axe
-  type pickaxe = Axe
-  type greatsword = Great_sword
-  type 'a arrow = Arrow of 'a
-  type minor_health_potion = Minor_health_potion
-  type major_health_potion = Minor_health_potion
-  type stamina_potion = Stamina_potion
-  type regeneration_potion = Regeneration_potion
-  type ring_of_fire = Ring_of_fire
-  type ring_of_water = Ring_of_water
 end
 
 module Obstacle = struct
@@ -105,15 +87,6 @@ module Enemy_kind = struct
 
 end
 
-module Case = struct
-  type door = Door
-  type stair = Stair
-  type 'a obstacle = Obstacle of 'a
-  type 'a enemy = Enemy of 'a
-  type 'a floor = Floor of 'a
-  type free = Inventory.none floor
-  type border = Border
-end
 
 module Nat = struct
   type z = Z

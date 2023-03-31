@@ -1,0 +1,15 @@
+type none = None
+type key = Key
+type dagger = Dagger
+type sword = Sword
+type mithril_sword = Mithril_sword
+type axe = Axe
+type pickaxe = Axe
+type greatsword = Great_sword
+type 'a arrow = Arrow of 'a
+type minor_health_potion = Minor_health_potion
+type major_health_potion = Minor_health_potion
+type stamina_potion = Stamina_potion
+type regeneration_potion = Regeneration_potion
+type ring_of_fire = Ring_of_fire
+type ring_of_water = Ring_of_water
