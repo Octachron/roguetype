@@ -393,6 +393,24 @@ type ('a,'h, 'r) drink_potion =
  constraint
    'h = 'a p health -> 'r
 
+
+type 'a annihilation =
+  < player: <inventory:Inventory.none; health: <current: Nat.o -> Nat.z; potential: Nat.z > >;
+    init:player_turn;
+    lvl:'a lvl;
+    world : <
+      l: <l:'ul1; m:Case.free; r:'ur1> -> <l:'ul2; m:Case.free; r:'ur2> -> 'u3;
+      m:<l: Case.free -> Case.free -> 'l; m: Case.free; r: Case.free -> Case.free -> 'r>;
+      r: <l:'dl1; m:Case.free; r:'dr1> -> <l:'dl2; m:Case.free; r:'dr2> -> 'd3;
+    >
+  >
+  constraint
+    'a w = <
+    l: <l:'ul1; m:_; r:'ur1> -> <l:'ul2; m:_; r:'ur2> -> 'u3;
+    m:<l: _ -> _ -> 'l; m: _; r: _ -> _ -> 'r>;
+    r: <l:'dl1; m:_; r:'dr1> -> <l:'dl2; m:_; r:'dr2> -> 'd3;
+  >
+
 type 'a move =
   | L: ('a, 'a world left ) wmove move
   | U: ('a, 'a world up) wmove move
@@ -404,7 +422,7 @@ type 'a move =
   | C: ('a -> 'a forest_cut) move
   | Dp: ('h -> 'nh) healing -> ('a -> ('a,'h, 'nh) drink_potion) move
   | E: ('a -> 'a drink_elixir) move
-  | A: ('a -> 'annihilation) move
+  | A: ('a -> 'a annihilation) move
 
   | FS: ('a -> 'a sword_attack) move
   | FMS: ('a -> 'a mithril_sword_attack) move
@@ -415,96 +433,3 @@ type 'a move =
 
   | Gate:  ('a -> 'a gate) move
   | Win: ('a -> 'a victory) move
-
-module type game = sig
-  type start
-  type _ path =
-    | []: start path
-    | (::): ('a -> 'b) move * 'a path -> 'b path
-end
-
-
-module Level0 = struct
-
-
-end
-
-type 'a game_start =
-  <world:'a;
-   player: player_start;
-   init: player_turn;
-   lvl:unit
-  >
-
-
-let game (type a b c d ma mb mc md m mr r)
-    (_: <l:a->b->c->d; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r> Builder.bcols):
-  (module game
-    with type start =
-           <l:a->b->c->d->e->f; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r> game_start
-  )
-= (module struct
-  type start =
-    <l:a->b->c->d->e->f; m:<l:ma ->mb->mc->md->me-> mf;r:mr;m:m>; r: r> game_start
-  type _ path =
-    | []: start path
-    | (::): ('a->'b) move * 'a path -> 'b path
-  end)
-
-(*
-module Level_test = (val game begin
-    [ [K; F; F], F, [F; F; F] ;
-      [F; F; F], F, [F; K; F] ;
-      [F; F; F], F, [F; F; F] ],
-    ( [F; F; F], F, [F; F; F] ),
-    [ [F; K; F], F, [F; F; F] ;
-      [F; F; F], F, [F; F; K] ;
-      [F; F; F], F, [F; F; F] ]
-  end)
-
-module Test = struct
-  open Level_test
-  let _ =[]
-
-
-  let _ = [R;L] = []
-
-  let s = [U;D] = []
-
-
-  let t = [L;L;L;D;R;R;R] = [D]
-  let w = [L;L;L;L;D;D;D;R;R;R]
-
-
-  let s = [U;L] = [L;U]
-  let s = [D;L] = [L;D]
-  let s = [U;R] = [R;U]
-  let s = [D;R] = [R;D]
-
-  let hamiltonian (x: start path) = match x with
-    | [] -> ()
-    | [_] -> .
-    | [_;_] -> ()
-    | [_;_;_] -> .
-    | _ -> ()
-
-end
-*)
-
-module Level0 = struct
-  module G= (val game begin
-    [ [F; F; W], F, [F; F; F] ;
-      [F; F; F], F, [W; W; F] ;
-      [F; F; F], W, [W; W; F] ],
-    ( [W; F; W], F, [K; D; F] ),
-    [ [F; F; W], F, [W; W; W] ;
-      [F; W; W], F, [F; F; W] ;
-      [F; S; W], W, [W; W; W] ]
-  end)
-  open G
-  let s = []
-  let p = [D;ME;P;D]
-  let p = [D;MM;UD;O;D;ME;P;D]
-  let path = Escape::D::R::R::U::R::R::R::U::U::R::U::U::U::L::L::L::D::O::D::P::D::[]
-
-end
