@@ -3,44 +3,28 @@ open Generic
 type  'a zip = 'a constraint
   'a = <l:'l; m:'m; r:'r>
 
-type 'a h = 'a -> 'a -> 'a -> 'a -> 'a -> 'a
+type 'a h = 'a -> 'a -> 'a -> 'a -> 'a -> 'a -> 'a -> 'a
 
 type 'p col = 'p constraint
   'p = <
-    l:'a -> 'b -> 'c -> 'd -> 'e -> 'f;
+    l:'l1 -> 'l2 -> 'l3 -> 'l4 -> 'l5 -> 'l6 -> 'l7 -> 'l8;
     m:'mid;
-    r: 'r1 -> 'r2 -> 'r3 -> 'r4 -> 'r5 ->'r6
+    r: 'r1 -> 'r2 -> 'r3 -> 'r4 -> 'r5 -> 'r6 -> 'r7 -> 'r8
   > zip
 
 type 'p cols = 'p constraint
   'p = <
-    l:'l1 col -> 'l2 col -> 'l3 col -> 'l4 col -> 'l5 col -> 'l6 col;
+    l:'l1 col -> 'l2 col -> 'l3 col -> 'l4 col -> 'l5 col -> 'l6 col -> 'l7 col -> 'l8 col;
     m:'mid col;
-    r: 'e col -> 'f col -> 'g col -> 'h col -> 'r5 col -> 'r6 col
+    r: 'r1 col -> 'r2 col -> 'r3 col -> 'r4 col -> 'r5 col -> 'r6 col -> 'r7 col -> 'r8 col
   > zip
-
-
-module Previous = struct
-  type left = Left
-  type right = Right
-  type down = Down
-  type up = Up
-  type none = None
-end
-
-module Obstacle = struct
-  type tree = Tree
-  type rock = Rock
-  type fire = Fire
-end
-
 
 module Integer_range = struct
 
-  type token = Token
-  type none = None
+  type o = Generic.Nat.o
+  type z = Generic.Nat.z
   module Modifier = struct
-    type 'a one = token -> 'a
+    type 'a one = o -> 'a
     type 'a two = 'a one one
     type 'a three = 'a one two
     type 'a four = 'a two two
@@ -48,50 +32,16 @@ module Integer_range = struct
   end
 
 
-  type 'a start = <current:'a; potential: none>
+  type 'a start = <current:'a; potential: z>
 
-  type one = (token -> none) start
-  type two = (token -> token -> none) start
-  type three = (token -> token -> token -> none) start
-  type four = (token -> token -> token -> none) start
-  type ten = none Modifier.two Modifier.eight start
+  type one = (o -> z) start
+  type two = (o -> o -> z) start
+  type three = (o -> o -> o -> z) start
+  type four = (o -> o -> o -> z) start
+  type ten = z Modifier.two Modifier.eight start
 end
 module R = Integer_range
 
-
-module Enemy_kind = struct
-
-  module Kind = struct
-    type snake = Snake
-    type goblin = Goblin
-    type orc = Orc
-    type dragon = Dragon
-    type ranged = Ranged
-    type close_quarter = Close_quarter
-  end
-
-  module Template = struct
-    open Integer_range
-    type snake =
-      <kind:Kind.snake; rage:one; health:one >
-    type goblin =
-      <kind:Kind.goblin; rage:one; health:two >
-    type orc =
-      <kind:Kind.orc; rage:two; health:two >
-    type dragon =
-      <kind:Kind.dragon; rage:ten; health:ten >
-
-    type ranged = Ranged
-    type close_quarter = Close_quarter
-  end
-
-end
-
-
-module Nat = struct
-  type z = Z
-  type 'a s = Succ of 'a
-end
 
 type f = Case.free
 type b = Case.border
@@ -104,46 +54,57 @@ type 'a hzip = <
   r: 'a h
 > col
 
-type eye_view = Eye_view
-type main = Physical_position
-type 'a event = Event of 'a
-
 type ('a,'b,'c,'d) state =
-  < world:'a; player:'b; history:'c; mode:'d>
+  < world:'a; player:'b;  init:'c; level:'d>
  
-type 'a action_mode = 'm
-  constraint 'a = < mode:'m; .. >
+type 'a init = 'm
+  constraint 'a = < init:'m; .. >
 
-type history_start = < path: Previous.none; len:Nat.z >
+type 'a i = 'i constraint 'a =  <inventory:'i; .. >
+
+type 'a health = 'h
+  constraint 'a = < health:'h; .. >
+
 
 type player_start =
   <
-    inventory: <
-      left_hand:Inventory.none;
-      right_hand:Inventory.none;
-    >;
-    exp:Nat.z;
-    status : <
-      health: Integer_range.two;
-      stamina: Integer_range.four;
-      mana: Integer_range.two;
-    >
+    inventory: Inventory.none;
+    health: Integer_range.three;
   >
 
 module Builder = struct
   open Case
+  open Inventory
+  open Monster
   type _ elt =
     | F: free elt
-    | W: border elt
-    | S: stair elt
-    | K: Inventory.key floor elt
+    | M: mountain elt
+    | T: forest elt
+    | G: gate elt
+    | Altar: altar elt
     | D: door elt
+    | R: ring_of_annihilation elt
+
+    | K: key floor elt
+    | H: potion floor elt
+    | E: elixir floor elt
+    | MS: mithril_sword floor elt
+    | CS: cristal_sword floor elt
+    | Ax: axe floor elt
+
+    | Ko: kobold elt
+    | Go: goblin elt
+    | O: orc elt
+    | Og: ogre elt
+    | Dr: dragon elt
+
+
   type 'a l =
     | []: (border -> border -> border) l
     | (::): 'a elt * 'b l -> ('a -> 'b) l
 
-  type 'p inv = 'c -> ' b -> 'a -> 'e -> 'f -> 'g
-    constraint 'p = 'a -> 'b -> 'c -> 'e -> 'f -> 'g
+  type 'p inv =  'b -> 'a -> 'c -> 'd
+    constraint 'p = 'a -> 'b -> 'c -> 'd
 
   type 'p bcol = 'l inv l * 'm elt * 'r l
     constraint 'p = <l:'l; m:'m; r:'r >
@@ -161,24 +122,22 @@ end
 
 
 
-type 'p first = 'a
-  constraint 'p = 'a -> 'b -> 'c -> 'd -> 'e -> 'f
+type 'p first = 'x1
+  constraint 'p = 'x1 -> 'x2 -> 'x3 -> 'x4 -> 'x5 -> 'x6 -> 'x7 -> 'x8
 
-type ('p,'x) app = 'a -> 'b -> 'c -> 'd-> 'e -> 'x
-  constraint 'p = 'a -> 'b -> 'c -> 'd -> 'e -> 'f
-
-
-type ('p,'x) pull = 'b -> 'c -> 'd -> 'e -> 'f -> 'x
-  constraint 'p = 'a -> 'b -> 'c -> 'd -> 'e -> 'f
-
-type ('x,'p) push = 'x -> 'a -> 'b -> 'c -> 'd -> 'e
-  constraint 'p = 'a -> 'b -> 'c -> 'd -> 'e -> 'f
+type ('p,'y) app = 'x1 -> 'x2 -> 'x3 -> 'x4 -> 'x5 -> 'x6 -> 'x7 -> 'y
+  constraint 'p = 'x1 -> 'x2 -> 'x3 -> 'x4 -> 'x5 -> 'x6 -> 'x7 -> 'x8
 
 
+type ('p,'y) pull = 'x2 -> 'x3 -> 'x4 -> 'x5 -> 'x6 -> 'x7 -> 'x8 -> 'y
+  constraint 'p = 'x1 -> 'x2 -> 'x3 -> 'x4 -> 'x5 -> 'x6 -> 'x7 -> 'x8
 
-type 'a is_free = 'a constraint 'a = 'b Case.floor
+type ('y,'p) push = 'y -> 'x1 -> 'x2 -> 'x3 -> 'x4 -> 'x5 -> 'x6 -> 'x7
+  constraint 'p =  'x1 -> 'x2 -> 'x3 -> 'x4 -> 'x5 -> 'x6 -> 'x7 -> 'x8
+
+
 type 'a mfree = 'a
-  constraint 'a = < m: 'b is_free ; ..>
+  constraint 'a = < m: _ Case.floor ; ..>
 
 type 'p l = 'l
   constraint 'p = <l:'l; .. >
@@ -201,12 +160,12 @@ type 'p cdw =
    m:'p r first;
    r: ('p r, b) pull >
 
-type 'p lcup = 'a cup -> 'b cup -> 'c cup -> 'd cup -> 'e cup -> 'f cup
-    constraint 'p = 'a -> 'b -> 'c -> 'd -> 'e -> 'f
+type 'p lcup = 'c1 cup -> 'c2 cup -> 'c3 cup -> 'c4 cup -> 'c5 cup -> 'c6 cup -> 'c7 cup -> 'c8 cup
+    constraint 'p = 'c1 -> 'c2 -> 'c3 -> 'c4 -> 'c5 -> 'c6 -> 'c7 -> 'c8
 
-type 'p lcdw = 'a cdw -> 'b cdw -> 'c cdw -> 'd cdw  -> 'e cdw -> 'f cdw
-    constraint 'p = 'a -> 'b -> 'c -> 'd -> 'e -> 'f
 
+type 'p lcdw = 'c1 cdw -> 'c2 cdw -> 'c3 cdw -> 'c4 cdw -> 'c5 cdw -> 'c6 cdw -> 'c7 cdw -> 'c8 cdw
+    constraint 'p = 'c1 -> 'c2 -> 'c3 -> 'c4 -> 'c5 -> 'c6 -> 'c7 -> 'c8
 
 
 type 'p up = <
@@ -233,7 +192,7 @@ type 'p right = <
   r: ('p r, b hzip) pull
   > cols
 
-type ('f,'b) line = 'f -> 'f -> 'f -> 'b -> 'b -> 'b
+type ('f,'b) line = 'f -> 'f -> 'f -> 'f -> 'b -> 'b -> 'b -> 'b
 
 type ('a,'b) scol = < l: 'a ;m:'b; r:'a> col
 
@@ -248,6 +207,8 @@ type start = (
 type 'a world = 'world constraint 'a = <world:'world; ..>
 type 'a player = 'player constraint 'a = <player:'player; ..>
 
+type player_turn = P
+type monster_turn = W
 
 type 'a p = 'player
   constraint 'a = <player: 'player; ..>
@@ -255,143 +216,205 @@ type 'a w = 'w
   constraint 'a = <world: 'w; ..>
 
 
-type ('a,'b, 'c) wmove =
-  'a -> <world: 'b; player: 'p; mode:'m;
-         history:<len:'len Nat.s; path:('c -> 'path) > >
-  constraint 'a =
-    < world:'w; player:'p; mode:'m; history:'h >
-  constraint 'm = <move:yes; .. >
-  constraint 'h = <len:'len; path:'path>
+type 'a lvl = 'l constraint 'a = <lvl:'l; ..>
 
-
-type ('a,'b, 'c) return_move =
-  'a -> <world: 'b; player: 'p; mode:'m;
-         history:<len:'len; path:'path > >
-  constraint 'a =
-    < world:'w; player:'p; mode:'m; history:'h >
-  constraint 'm = <move:yes; .. >
-  constraint 'h = <len:'len Nat.s; path: 'c -> 'path>
-
-
-type ('a,'b) reset_move =
-  'a -> <world: 'b; player: 'p; mode:'m; history:history_start >
-  constraint 'a =
-    <world:'w; player:'p; mode:'m; history:'h >
-  constraint 'm = <move:yes; .. >
-
-
-type 'a left_hand = 'lh
-  constraint
-    'a = <inventory:'i; ..>
-  constraint
-    'i = <left_hand:'lh; .. >
-type 'a right_hand = 'x
-  constraint 'a = <inventory:'i; .. >
-  constraint 'i = <right_hand:'x; ..>
 type 'a fl = 'f constraint 'a = 'f Case.floor
 
-
-type 'a exp = 'exp
-  constraint 'a = <exp:'exp; .. >
-
-type 'a history = 'h
-  constraint 'a = <history:'h; .. >
-
-type 'a status = 'st
-  constraint 'a = <status:'st; .. >
-
-type main_mode = <tag:main; move:yes>
-type eye_mode = <tag:eye_view; move:yes>
+type ('a,'b) wmove =
+  'a -> <world: 'b; player: 'a p; init:'a init; level: 'a lvl >
+  constraint 'a w m m fl = _
 
 
 type 'a pick = <
   world:
     <l:'w l; r:'w r;
      m: <l:'m l;r:'m r;
-         m:Case.free
+         m:'p i
         >
     >;
   player:<
-    inventory: <left_hand:'m m fl; right_hand:'a p right_hand>;
-    status: 'status;
-    exp:'exp
+    inventory: 'm m;
+    health: 'p h
   >;
-  history:history_start;
-  mode:'mode;
+  initiative: 'a init;
+  level:'a lvl;
 >
   constraint 'w = 'a w
   constraint 'm = 'w m
   constraint 'p = 'a p
-  constraint 'p = <status:'status; exp:'exp; .. >
-  constraint 'mode = 'a action_mode
-  constraint 'mode = main_mode
 
 
-type 'a swap = <
-  world: 'a world;
-  player:<left_hand:'a p right_hand fl; right_hand:'a p left_hand; back:Previous.none>
->
 
 type 'a open_door = <
   player:<
-    inventory: <left_hand:Inventory.none; right_hand:'rh>;
-    status: 'p status;
-    exp: 'p exp;
+    inventory: Inventory.none;
+    health: 'p health
   >;
   world:<
     l:'a world l;
     r: 'a world r;
     m: <l:'a world m l; m:Case.free; r:'a world m r>;
   >;
-  history:'a history;
-  mode: 'mode
+  initiative: 'a init;
+  lvl: 'a lvl
 >
   constraint
-  'a w m m = Case.door
+    'a w m m = Case.door
+  constraint
+    'p = 'a p
+
+type 'a forest_cut = <
+  player: 'a p;
+  world:<
+    l:'a world l;
+    r: 'a world r;
+    m: <l:'a world m l; m:Case.free; r:'a world m r>;
+  >;
+  initiative: 'a init;
+  lvl: 'a lvl
+>
+  constraint
+    'a w m m = Case.forest
+  constraint
+    'a p i = Inventory.axe
+
+type 'a defend =
+  < player: < health: <current:'hc; potential: R.o ->  'hp  >; inventory: 'p i >;
+    world:'a w;
+    init:player_turn;
+    level: 'a lvl
+  >
   constraint
     'p = 'a p
   constraint
-    'p = < inventory:<left_hand:Inventory.key; right_hand:'rh>; .. >
-  constraint
-    'a action_mode = 'mode
-  constraint
-    'mode = eye_mode
+    'p health = <current: R.o -> 'hc; potential: 'hp >
 
-type 'a escape = 'a
-  constraint 'a w m m = Case.stair
-
-type 'a eye_switch =
-  'a -> < world:'w; mode:eye_mode; history:history_start; player:'p>
+type 'a kill =
+  < player: 'p;
+    world:<
+      l:'a world l;
+      r: 'a world r;
+      m: <l:'a world m l; m:Case.free; r:'a world m r>;
+    >;
+    init:player_turn;
+    level: 'a lvl
+  >
   constraint
-    'a = <player:'p; world:'w; mode:main_mode; .. >
-
-type 'a main_switch =
-  'a -> <player:'p; world:'w; mode:main_mode; history:'h >
+    'p = 'a p
   constraint
-    'a = < world:'w; mode:eye_mode; history:history_start as 'h; player:'p>
+   'a init = player_turn
+  constraint
+    'a w m m health = Nat.z
 
+
+
+type 'a drink_elixir =
+  < player: < health: <current: R.o -> 'hc; potential: 'hp  >; inventory: 'p i >;
+    world:'a w;
+    init:player_turn;
+    level: 'a lvl
+  >
+  constraint
+    'p = 'a p
+  constraint
+    'p health = <current:R.o-> 'hc; potential: 'hp >
+
+type 'a sword_attack =
+  <  world:<
+      l:'a world l;
+      r: 'a world r;
+      m: <l:'a world m l; m:'mh Case.monster; r:'a world m r>;
+    >;
+    player: 'a p;
+    level: 'a lvl;
+    init:monster_turn
+  >
+  constraint
+    'a w m m = (Nat.o -> 'mh) Case.monster
+
+
+type 'a mithril_sword_attack =
+  <  world:<
+      l:'a world l;
+      r: 'a world r;
+      m: <l:'a world m l; m:'mh Case.monster; r:'a world m r>;
+    >;
+    player: 'a p;
+    level: 'a lvl;
+    init:monster_turn
+  >
+  constraint
+    'a w m m = (Nat.o -> Nat.o -> 'mh) Case.monster
+  constraint
+    'a p i = Inventory.mithril_sword
+
+
+type 'a cristal_sword_attack =
+  <  world:<
+      l:'a world l;
+      r: 'a world r;
+      m: <l:'a world m l; m:Case.free; r:'a world m r>;
+    >;
+    player: <health: 'a p health; inventory:Inventory.none >;
+    level: 'a lvl;
+    init:monster_turn
+  >
+  constraint
+    'a w m m = _ Case.monster
+  constraint
+    'a p i = Inventory.cristal_sword
+
+type 'a gate =
+  < level_cleared:yes;
+    lvl: 'a lvl;
+    player: 'a p
+  >
+  constraint
+    'a w m m = Case.gate
+
+type 'a victory =
+  < victory:yes >
+  constraint
+    'a w m m = Case.altar
+
+
+type !_ healing =
+  | One: (<potential: Nat.o -> 'a; current:'c> ->  <potential:'a; current: Nat.o -> 'c >) healing
+  | More: ('a -> <potential: Nat.o -> 'b; current: 'ch>) healing ->
+      ('a -> <potential: 'b; current: Nat.o -> 'ch>) healing
+
+type ('a,'h, 'r) drink_potion =
+  <
+    world:'a w;
+    init: 'a init;
+    level: 'a lvl;
+    player: < inventory:'a p i; health: 'r >
+  >
+ constraint
+   'h = 'a p health -> 'r
 
 type 'a move =
-  | L: ('a, 'a world left, Previous.right ) wmove move
-  | U: ('a, 'a world up, Previous.down ) wmove move
-  | D: ('a, 'a world down, Previous.up ) wmove move
-  | R: ('a,'a world right, Previous.left ) wmove move
-
-  | UL: ('a, 'a world left, Previous.left ) return_move move
-  | UU: ('a, 'a world up, Previous.up ) return_move move
-  | UD: ('a, 'a world down, Previous.down ) return_move move
-  | UR: ('a,'a world right, Previous.right ) return_move move
-
-
-  | ME: 'a eye_switch move
-  | MM: 'a main_switch move
+  | L: ('a, 'a world left ) wmove move
+  | U: ('a, 'a world up) wmove move
+  | D: ('a, 'a world down) wmove move
+  | R: ('a,'a world right) wmove move
 
   | P: ('a -> 'a pick) move
-  | S: ('a -> 'a swap) move
   | O: ('a -> 'a open_door) move
+  | C: ('a -> 'a forest_cut) move
+  | Dp: ('h -> 'nh) healing -> ('a -> ('a,'h, 'nh) drink_potion) move
+  | E: ('a -> 'a drink_elixir) move
+  | A: ('a -> 'annihilation) move
 
-  | Escape:  ('a escape, won) reset_move move
+  | FS: ('a -> 'a sword_attack) move
+  | FMS: ('a -> 'a mithril_sword_attack) move
+  | FCS: ('a -> 'a cristal_sword_attack) move
 
+  | Df: ('a -> 'a defend) move
+  | K: ('a -> 'a kill) move
+
+  | Gate:  ('a -> 'a gate) move
+  | Win: ('a -> 'a victory) move
 
 module type game = sig
   type start
@@ -400,16 +423,22 @@ module type game = sig
     | (::): ('a -> 'b) move * 'a path -> 'b path
 end
 
+
+module Level0 = struct
+
+
+end
+
 type 'a game_start =
   <world:'a;
    player: player_start;
-   mode: main_mode;
-   history: history_start;
+   init: player_turn;
+   lvl:unit
   >
 
 
-let game (type a b c d e f ma mb mc md me mf m mr r)
-    (_: <l:a->b->c->d->e->f; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r> Builder.bcols):
+let game (type a b c d ma mb mc md m mr r)
+    (_: <l:a->b->c->d; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r> Builder.bcols):
   (module game
     with type start =
            <l:a->b->c->d->e->f; m:<l:ma->mb->mc->md->me->mf;r:mr;m:m>; r: r> game_start
