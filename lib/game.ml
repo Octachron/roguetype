@@ -9,9 +9,10 @@ type player_start =
   >
 
 
-type m = Case.mountain
-
-type ('a, 'm) inv  = <l: 'x4 -> 'x3 -> 'x2 -> 'x1 -> 'm -> 'm -> 'm -> 'm; r: 'x6 -> 'x7-> 'x8 -> 'x9 -> 'm -> 'm -> 'm -> m >
+type ('a, 'm) inv  = <
+  l: 'x4 -> 'x3 -> 'x2 -> 'x1 -> 'm -> 'm -> 'm -> 'm;
+  m:'x5;
+  r: 'x6 -> 'x7-> 'x8 -> 'x9 -> 'm -> 'm -> 'm -> 'm >
 constraint 'a = 'x1 -> 'x2 -> 'x3 -> 'x4 -> 'x5 -> 'x6 -> 'x7 -> 'x8 -> 'x9
 
 
@@ -59,7 +60,7 @@ module Lvl1 = struct
     (e -> t -> f -> f -> f -> t -> f -> f -> f) row
   ) grid
 
-  type start = <world:world; player:player_start; lvl:t; initiative:player_turn >
+  type start = <world:world; player:player_start; lvl:t; init:player_turn >
 
   type _ path =
     | []: start path
@@ -89,7 +90,7 @@ struct
     (m -> k -> m -> m -> m -> m -> m -> m -> f) row ->
     (m -> f -> f -> f -> f -> f -> f -> f -> f) row
   ) grid
-  type start = <world:world; player:X.p; lvl:t; initiative:player_turn >
+  type start = <world:world; player:X.p; lvl:t; init:player_turn >
 
   type _ path =
     | []: start path
@@ -112,7 +113,7 @@ struct
     (t  -> t  -> t  -> t  -> go -> t  -> t  -> t  -> f ) row ->
     (g  -> f  -> go -> f  -> f  -> ko -> f  -> f  -> f ) row
   ) grid
-  type start = <world:world; player:X.p; lvl:t; initiative:player_turn >
+  type start = <world:world; player:X.p; lvl:t; init:player_turn >
 
   type _ path =
     | []: start path
@@ -139,7 +140,7 @@ struct
    (p -> d -> f -> m -> f -> f -> f -> go -> f) row
   ) grid
 
-  type start = <world:world; player:X.p; lvl:t; initiative:player_turn >
+  type start = <world:world; player:X.p; lvl:t; init:player_turn >
 
   type _ path =
     | []: start path
@@ -166,7 +167,7 @@ module Lvl5
     (f -> f -> m -> p -> m -> f -> f -> m -> f) row ->
     (f -> f -> f -> d -> m -> f -> f -> m -> e) row
   ) grid
-  type start = <world:world; player:X.p; lvl:t; initiative:player_turn >
+  type start = <world:world; player:X.p; lvl:t; init:player_turn >
 
   type _ path =
     | []: start path
@@ -193,7 +194,7 @@ module Lvl6
     (f -> t -> t -> t -> t -> oc -> t -> t -> t) row ->
     (f -> f -> ko -> f -> f -> f -> f -> ko -> a) row
   ) grid
-  type start = <world:world; player:X.p; lvl:t; initiative:player_turn >
+  type start = <world:world; player:X.p; lvl:t; init:player_turn >
 
   type _ path =
     | []: start path
@@ -221,7 +222,7 @@ module Lvl7
     (r -> m -> f -> m -> e -> m -> f -> m -> d) row ->
     (dr -> f -> f -> m -> s -> og -> f -> m -> g) row
   ) grid
-  type start = <world:world; player:X.p; lvl:t; initiative:player_turn >
+  type start = <world:world; player:X.p; lvl:t; init:player_turn >
 
   type _ path =
     | []: start path
@@ -251,7 +252,7 @@ module Lvl8
     (dr -> m -> m -> m -> f -> m -> f -> m -> f) row ->
     (f -> f -> f -> f -> f -> m -> f -> f -> f ) row
   ) grid
-  type start = <world:world; player:X.p; lvl:t; initiative:player_turn >
+  type start = <world:world; player:X.p; lvl:t; init:player_turn >
 
   type _ path =
     | []: start path

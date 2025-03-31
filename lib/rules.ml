@@ -55,7 +55,7 @@ type 'a hzip = <
 > col
 
 type ('a,'b,'c,'d) state =
-  < world:'a; player:'b;  init:'c; level:'d>
+  < world:'a; player:'b;  init:'c; lvl:'d>
  
 type 'a init = 'm
   constraint 'a = < init:'m; .. >
@@ -221,7 +221,7 @@ type 'a lvl = 'l constraint 'a = <lvl:'l; ..>
 type 'a fl = 'f constraint 'a = 'f Case.floor
 
 type ('a,'b) wmove =
-  'a -> <world: 'b; player: 'a p; init:'a init; level: 'a lvl >
+  'a -> <world: 'b; player: 'a p; init:'a init; lvl: 'a lvl >
   constraint 'a w m m fl = _
 
 
@@ -236,8 +236,8 @@ type 'a pick = <
     inventory: 'm m;
     health: 'p h
   >;
-  initiative: 'a init;
-  level:'a lvl;
+  init: 'a init;
+  lvl:'a lvl;
 >
   constraint 'w = 'a w
   constraint 'm = 'w m
@@ -255,7 +255,7 @@ type 'a open_door = <
     r: 'a world r;
     m: <l:'a world m l; m:Case.free; r:'a world m r>;
   >;
-  initiative: 'a init;
+  init: 'a init;
   lvl: 'a lvl
 >
   constraint
@@ -270,7 +270,7 @@ type 'a forest_cut = <
     r: 'a world r;
     m: <l:'a world m l; m:Case.free; r:'a world m r>;
   >;
-  initiative: 'a init;
+  init: 'a init;
   lvl: 'a lvl
 >
   constraint
@@ -282,7 +282,7 @@ type 'a defend =
   < player: < health: <current:'hc; potential: R.o ->  'hp  >; inventory: 'p i >;
     world:'a w;
     init:player_turn;
-    level: 'a lvl
+    lvl: 'a lvl
   >
   constraint
     'p = 'a p
@@ -297,7 +297,7 @@ type 'a kill =
       m: <l:'a world m l; m:Case.free; r:'a world m r>;
     >;
     init:player_turn;
-    level: 'a lvl
+    lvl: 'a lvl
   >
   constraint
     'p = 'a p
@@ -312,7 +312,7 @@ type 'a drink_elixir =
   < player: < health: <current: R.o -> 'hc; potential: 'hp  >; inventory: 'p i >;
     world:'a w;
     init:player_turn;
-    level: 'a lvl
+    lvl: 'a lvl
   >
   constraint
     'p = 'a p
@@ -326,7 +326,7 @@ type 'a sword_attack =
       m: <l:'a world m l; m:'mh Case.monster; r:'a world m r>;
     >;
     player: 'a p;
-    level: 'a lvl;
+    lvl: 'a lvl;
     init:monster_turn
   >
   constraint
@@ -340,7 +340,7 @@ type 'a mithril_sword_attack =
       m: <l:'a world m l; m:'mh Case.monster; r:'a world m r>;
     >;
     player: 'a p;
-    level: 'a lvl;
+    lvl: 'a lvl;
     init:monster_turn
   >
   constraint
@@ -356,7 +356,7 @@ type 'a cristal_sword_attack =
       m: <l:'a world m l; m:Case.free; r:'a world m r>;
     >;
     player: <health: 'a p health; inventory:Inventory.none >;
-    level: 'a lvl;
+    lvl: 'a lvl;
     init:monster_turn
   >
   constraint
@@ -365,7 +365,7 @@ type 'a cristal_sword_attack =
     'a p i = Inventory.cristal_sword
 
 type 'a gate =
-  < level_cleared:yes;
+  < lvl_cleared:yes;
     lvl: 'a lvl;
     player: 'a p
   >
@@ -387,7 +387,7 @@ type ('a,'h, 'r) drink_potion =
   <
     world:'a w;
     init: 'a init;
-    level: 'a lvl;
+    lvl: 'a lvl;
     player: < inventory:'a p i; health: 'r >
   >
  constraint

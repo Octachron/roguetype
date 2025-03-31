@@ -1,0 +1,1 @@
+(executable (name start) (libraries roguetype_lib))
