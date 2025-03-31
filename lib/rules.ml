@@ -433,3 +433,4 @@ type 'a move =
 
   | Gate:  ('a -> 'a gate) move
   | Win: ('a -> 'a victory) move
+

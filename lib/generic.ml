@@ -9,6 +9,7 @@ module Nat = struct
   type three = o -> two
   type four = o -> three
   type six = o -> o -> four
+  type eight = o -> o -> six
 
   type 'a s = o -> 'a
   type 'a p4 = 'a s s s s
