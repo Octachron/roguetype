@@ -304,7 +304,7 @@ type 'a move =
        <
         lvl:'lvl; init:'init;
         player:<
-          health: <current:Nat.one -> 'hc; potential:'hp>;
+          health: <current:Nat.o -> 'hc; potential:'hp>;
           inventory:Inventory.none
         >;
         world:'w
