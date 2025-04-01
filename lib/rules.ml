@@ -180,14 +180,14 @@ type 'a move =
   player: 'p;
   world:
     < up:
-        <l: 'u1m -> 'u1lr; m:'u1r; r: 'u1rr > ->
-        <l: 'u2m -> 'u2lr; m:'u2r; r: 'u2rr > ->
-        <l: 'u3m -> 'u3lr; m:'u3r; r: 'u3rr > ->
-        <l: 'u4m -> 'u4lr; m:'u4r; r: 'u4rr > ->
-        <l: 'u5m -> 'u5lr; m:'u5r; r: 'u5rr > ->
-        <l: 'u6m -> 'u6lr; m:'u6r; r: 'u6rr > ->
-        <l: 'u7m -> 'u7lr; m:'u7r; r: 'u7rr > ->
-        <l: 'u8m -> 'u8lr; m:'u8r; r: 'u8rr >
+        <l: 'u1m -> 'u1l; m:'u1r; r: 'u1rr > ->
+        <l: 'u2m -> 'u2l; m:'u2r; r: 'u2rr > ->
+        <l: 'u3m -> 'u3l; m:'u3r; r: 'u3rr > ->
+        <l: 'u4m -> 'u4l; m:'u4r; r: 'u4rr > ->
+        <l: 'u5m -> 'u5l; m:'u5r; r: 'u5rr > ->
+        <l: 'u6m -> 'u6l; m:'u6r; r: 'u6rr > ->
+        <l: 'u7m -> 'u7l; m:'u7r; r: 'u7rr > ->
+        <l: 'u8m -> 'u8l; m:'u8r; r: 'u8rr >
     ;
       m: <l:'mm Case.floor -> 'ml; m:'mr; r: 'mrr>;
       dw:
