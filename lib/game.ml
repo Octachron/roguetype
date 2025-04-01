@@ -47,8 +47,8 @@ module Short_cases = struct
 end
 
 module Lvl1 = struct
-  open Short_cases
   type t
+  open Short_cases
   type world = (
     (a, f, f, t, f, f, f, t, g) row,
     (t, t, f, t, f, t, t, t, f) row,
