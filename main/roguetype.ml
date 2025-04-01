@@ -20,10 +20,11 @@ let main () =
   Style.setup (Some Always);
   Clflags.noversion:=true;
   Clflags.noinit:=true;
+  Clflags.real_paths:= false;
   Format.printf
-    "@[<v>%a - escape from the type system @,\
+    "@[<v>%a - escape from the type system @,@,\
      The game levels are defined in the %a module.@,\
-     The rules of the game are defined in the %a module.@,\
+     The rules of the game are defined in the %a module.@,@,\
      Now go forth and prove that the victory type is inhabited@]@."
     (Format_doc.compat Style.inline_code) "Roguetype"
     (Format_doc.compat Style.inline_code) "Game"
@@ -36,7 +37,7 @@ let main () =
   Compmisc.init_path ();
   Topfind.load_deeply ["roguetype.lib"];
   let _ = Toploop.use_silently Format.err_formatter
-    (Toploop.String "let exit () = exit ();;")
+    (Toploop.String "let exit () = ();;")
   in
   let _ = Toploop.use_silently
     Format.err_formatter

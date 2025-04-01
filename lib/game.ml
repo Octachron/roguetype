@@ -5,7 +5,7 @@ open Generic
 type player_start =
   <
     inventory: Inventory.none;
-    health: Integer_range.three;
+    health: Integer_range.four;
   >
 
 type ('c1,'c2,'c3,'c4,'c5,'c6,'c7,'c8,'c9) row =
