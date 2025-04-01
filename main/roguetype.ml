@@ -20,15 +20,28 @@ let main () =
   Style.setup (Some Always);
   Clflags.noversion:=true;
   Clflags.noinit:=true;
-  Format.printf "%a - escape from the type system @."
-    (Format_doc.compat Style.inline_code) "Roguetype";
+  Format.printf
+    "@[<v>%a - escape from the type system @,\
+     The game levels are defined in the %a module.@,\
+     The rules of the game are defined in the %a module.@,\
+     Now go forth and prove that the victory type is inhabited@]@."
+    (Format_doc.compat Style.inline_code) "Roguetype"
+    (Format_doc.compat Style.inline_code) "Game"
+    (Format_doc.compat Style.inline_code) "Rules";
+
   let ppf = Format.err_formatter in
   let _program = "roguetype" in
   Topcommon.update_search_path_from_env ();
   if not (Toploop.prepare ppf ()) then raise (Compenv.Exit_with_status 2);
   Compmisc.init_path ();
   Topfind.load_deeply ["roguetype.lib"];
-(*  Toploop.use_silently (Toploop.String "let exit () = exit ()"); *)
+  let _ = Toploop.use_silently Format.err_formatter
+    (Toploop.String "let exit () = exit ();;")
+  in
+  let _ = Toploop.use_silently
+    Format.err_formatter
+    (Toploop.String "open Roguetype_lib;;")
+  in
   Toploop.loop Format.std_formatter
 
 let () =
