@@ -2,11 +2,15 @@
 open Rules
 open Generic
 
+type player_starting_health = Nat.four
+
 type player_start =
   <
     inventory: Inventory.none;
-    health: Integer_range.four;
+    health: <current:player_starting_health; potential:Nat.z >
   >
+
+
 
 type ('c1,'c2,'c3,'c4,'c5,'c6,'c7,'c8,'c9) row =
   <l:'c4 -> 'c3 -> 'c2 -> 'c1 -> m -> m; m:'c5; r:'c6 -> 'c7 -> 'c8 -> 'c9 -> m -> m >

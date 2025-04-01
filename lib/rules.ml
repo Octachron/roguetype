@@ -61,7 +61,7 @@ module Integer_range = struct
   type one = (o -> z) start
   type two = (o -> o -> z) start
   type three = (o -> o -> o -> z) start
-  type four = (o -> o -> o -> z) start
+  type four = (o -> o -> o -> o -> z) start
   type ten = z Modifier.two Modifier.eight start
 end
 module R = Integer_range
