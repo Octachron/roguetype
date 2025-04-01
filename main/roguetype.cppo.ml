@@ -1,9 +1,3 @@
-
-(*
-external current_environment: unit -> Obj.t = "caml_get_current_environment"
-*)
-
-
 let dir_quit () = Format.printf "Reach the altar of victory to escape@."
 
 let _ =
