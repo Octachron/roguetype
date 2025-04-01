@@ -5,7 +5,7 @@ type player_turn = P
 type monster_turn = W
 
 type 'x line =
-  < l: 'x -> 'x -> 'x -> 'x -> 'x -> 'x -> 'x -> 'x; m:'x; r:'x -> 'x -> 'x -> 'x -> 'x -> 'x -> 'x -> 'x >
+  < l: 'x -> 'x -> 'x -> 'x -> 'x -> 'x -> 'x -> 'x -> 'x -> 'x; m:'x; r:'x -> 'x -> 'x -> 'x -> 'x -> 'x -> 'x -> 'x -> 'x -> 'x >
 
 type mountains = Case.mountain line
 
