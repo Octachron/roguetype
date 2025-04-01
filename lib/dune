@@ -1,3 +1,4 @@
 (library
+  (public_name roguetype.lib)
   (name roguetype_lib)
 )

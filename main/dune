@@ -1,0 +1,6 @@
+(executable
+ (public_name roguetype)
+ (package roguetype)
+ (libraries compiler-libs.toplevel roguetype.lib findlib.top)
+ (modes byte)
+)
