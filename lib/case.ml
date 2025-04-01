@@ -13,7 +13,7 @@ type cristal_sword = Inventory.cristal_sword floor
 type axe = Inventory.axe floor
 type potion = Inventory.potion floor
 type elixir = Inventory.elixir floor
-type ring_of_annihilation = Inventory.ring_of_annihilation
+type ring_of_annihilation = Inventory.ring_of_annihilation floor
 
 type 'a monster = 'a Monster.t
 type kobold = Monster.kobold
