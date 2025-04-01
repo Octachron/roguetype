@@ -4,3 +4,8 @@
  (libraries compiler-libs.toplevel roguetype.lib findlib.top)
  (modes byte)
 )
+
+(rule
+ (with-stdout-to
+  roguetype.ml
+  (run %{bin:cppo} -V OCAML:%{ocaml_version} %{dep:roguetype.cppo.ml})))
