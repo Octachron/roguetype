@@ -4,6 +4,8 @@ In a world full of GADTs and type constraints, discover hidden paths through
 mountains and forest, vanquish dragons, traverse the seven functor gates to
 finally prove that the victory type is inhabited.
 
+![Roguetype](https://github.com/user-attachments/assets/e5630e3a-f8b4-47b6-b4a8-dd369205f300)
+
 ## How to play with the marvelous interface Roguetype
 
 Roguetype can be installed with
