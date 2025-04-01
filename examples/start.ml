@@ -6,8 +6,20 @@ let start = []
 
 let (=>) l x = x :: l
 
-let v = start => R => R => R => D => D => R => D => D
-  => L => L => L => L => L => L => L => L => G
+let v = start => D => D => D => R => R => D  => R  => R
+        => U => U => U => U => U => U => U => U => Gate
+
+module Trace_1 = struct
+  type lvl = Game.Lvl1.t
+  type p= Game.player_start
+  type 'a path = 'a Game.Lvl1.path
+  let trace = v
+end
+
+module L2 = Game.Lvl2(Trace_1)
+open L2
+
+let[@warning "-32"] start_2 = []
 
 (*
 let w = v

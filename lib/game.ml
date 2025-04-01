@@ -8,16 +8,17 @@ type player_start =
     health: Integer_range.three;
   >
 
+type ('c1,'c2,'c3,'c4,'c5,'c6,'c7,'c8,'c9) row =
+  <l:'c4 -> 'c3 -> 'c2 -> 'c1 -> m; m:'c5; r:'c6 -> 'c7 -> 'c8 -> 'c9 -> m >
 
-type ('a, 'm) inv  = <
-  l: 'x4 -> 'x3 -> 'x2 -> 'x1 -> 'm -> 'm -> 'm -> 'm;
-  m:'x5;
-  r: 'x6 -> 'x7-> 'x8 -> 'x9 -> 'm -> 'm -> 'm -> 'm >
-constraint 'a = 'x1 -> 'x2 -> 'x3 -> 'x4 -> 'x5 -> 'x6 -> 'x7 -> 'x8 -> 'x9
+type many_mountains = mountains -> mountains -> mountains -> mountains
 
+type ('r1,'r2,'r3,'r4,'r5,'r6,'r7,'r8,'r9) grid = <
+  up:'r4 -> 'r3 -> 'r2 -> 'r1 -> many_mountains;
+  m:'r5;
+  dw:'r6 -> 'r7 -> 'r8 -> 'r9 -> many_mountains
+>
 
-type 'a row = ('a, Case.mountain) inv
-type 'a grid = ('a, Case.mountain Rules.hzip) inv
 
 module Short_cases = struct
   open Case
@@ -49,15 +50,15 @@ module Lvl1 = struct
   open Short_cases
   type t
   type world = (
-    (a -> f -> f -> t -> f -> f -> f -> t -> g) row ->
-    (t -> t -> f -> t -> f -> t -> t -> t -> f) row ->
-    (f -> f -> f -> t -> f -> t -> t -> t -> f) row ->
-    (f -> t -> t -> t -> f -> t -> f -> t -> f) row ->
-    (f -> t -> f -> f -> f -> f -> f -> t -> f) row ->
-    (f -> t -> t -> f -> f -> t -> f -> t -> f) row ->
-    (f -> f -> f -> t -> f -> t -> f -> t -> f) row ->
-    (t -> t -> f -> t -> f -> f -> f -> t -> f) row ->
-    (e -> t -> f -> f -> f -> t -> f -> f -> f) row
+    (a, f, f, t, f, f, f, t, g) row,
+    (t, t, f, t, f, t, t, t, f) row,
+    (f, f, f, t, f, t, t, t, f) row,
+    (f, t, t, t, f, t, f, t, f) row,
+    (f, t, f, f, f, f, f, t, f) row,
+    (f, t, t, f, f, t, f, t, f) row,
+    (f, f, f, t, f, t, f, t, f) row,
+    (t, t, f, t, f, f, f, t, f) row,
+    (e, t, f, f, f, t, f, f, f) row
   ) grid
 
   type start = <world:world; player:player_start; lvl:t; init:player_turn >
@@ -79,16 +80,17 @@ module Lvl2(X: clear with type 'a path = 'a Lvl1.path) =
 struct
 
   type t
-  type world = Short_cases.(
-    (f -> f -> f -> f -> f -> f -> m -> m -> g) row ->
-    (f -> m -> m -> f -> m -> f -> m -> m -> f) row ->
-    (f -> m -> m -> f -> m -> f -> m -> m -> d) row ->
-    (f -> m -> m -> f -> f -> f -> m -> m -> f) row ->
-    (f -> f -> f -> f -> f -> f -> f -> f -> f) row ->
-    (m -> m -> m -> f -> f -> f -> m -> m -> m) row ->
-    (m -> m -> m -> m -> f -> f -> f -> f -> f) row ->
-    (m -> k -> m -> m -> m -> m -> m -> m -> f) row ->
-    (m -> f -> f -> f -> f -> f -> f -> f -> f) row
+  open Short_cases
+  type world = (
+    (f, f, f, f, f, f, m, m, g) row,
+    (f, m, m, f, m, f, m, m, f) row,
+    (f, m, m, f, m, f, m, m, d) row,
+    (f, m, m, f, f, f, m, m, f) row,
+    (f, f, f, f, f, f, f, f, f) row,
+    (m, m, m, f, f, f, m, m, m) row,
+    (m, m, m, m, f, f, f, f, f) row,
+    (m, k, m, m, m, m, m, m, f) row,
+    (m, f, f, f, f, f, f, f, f) row
   ) grid
   type start = <world:world; player:X.p; lvl:t; init:player_turn >
 
@@ -102,16 +104,17 @@ module Lvl3(L1: clear with type 'a path = 'a Lvl1.path)(X: clear with type 'a pa
 struct
 
   type t
-  type world = Short_cases.(
-    (f  -> f  -> f  -> f  -> f  -> ko -> f  -> f  -> f ) row ->
-    (f  -> t  -> t  -> go -> t  -> t  -> t  -> t  -> f ) row ->
-    (f  -> t  -> f  -> f  -> f  -> f  -> go -> t  -> go) row ->
-    (f  -> t  -> f  -> t  -> f  -> f  -> f  -> t  -> f ) row ->
-    (f  -> f  -> f  -> ko -> f  -> go -> f  -> go -> f ) row ->
-    (f  -> t  -> t  -> t  -> f  -> f  -> f  -> t  -> f ) row ->
-    (f  -> f  -> f  -> f  -> ko -> f  -> f  -> t  -> ko) row ->
-    (t  -> t  -> t  -> t  -> go -> t  -> t  -> t  -> f ) row ->
-    (g  -> f  -> go -> f  -> f  -> ko -> f  -> f  -> f ) row
+  open Short_cases
+  type world = (
+    (f , f , f , f , f , ko, f , f , f ) row,
+    (f , t , t , go, t , t , t , t , f ) row,
+    (f , t , f , f , f , f , go, t , go) row,
+    (f , t , f , t , f , f , f , t , f ) row,
+    (f , f , f , ko, f , go, f , go, f ) row,
+    (f , t , t , t , f , f , f , t , f ) row,
+    (f , f , f , f , ko, f , f , t , ko) row,
+    (t , t , t , t , go, t , t , t , f ) row,
+    (g , f , go, f , f , ko, f , f , f ) row
   ) grid
   type start = <world:world; player:X.p; lvl:t; init:player_turn >
 
@@ -128,16 +131,17 @@ module Lvl4
 struct
 
   type t
-  type world = Short_cases.(
-   (d  -> f -> f -> m -> k -> f -> f -> m -> g) row ->
-   (s -> m -> go -> m -> m -> m -> ko -> m -> oc) row ->
-   (m -> m -> f -> f -> go -> f -> f -> m -> go) row ->
-   (f -> ko -> f -> f -> m -> m -> m -> m -> go) row ->
-   (f -> m -> f -> f -> f -> f -> go -> f -> f) row ->
-   (go -> go -> go -> m -> m -> m -> f -> m -> m) row ->
-   (f -> f -> f -> m -> ko -> f -> f -> m -> k) row ->
-   (m -> m -> go -> m -> f -> m -> m -> m -> f) row ->
-   (p -> d -> f -> m -> f -> f -> f -> go -> f) row
+  open Short_cases
+  type world = (
+   (d , f, f, m, k, f, f, m, g) row,
+   (s, m, go, m, m, m, ko, m, oc) row,
+   (m, m, f, f, go, f, f, m, go) row,
+   (f, ko, f, f, m, m, m, m, go) row,
+   (f, m, f, f, f, f, go, f, f) row,
+   (go, go, go, m, m, m, f, m, m) row,
+   (f, f, f, m, ko, f, f, m, k) row,
+   (m, m, go, m, f, m, m, m, f) row,
+   (p, d, f, m, f, f, f, go, f) row
   ) grid
 
   type start = <world:world; player:X.p; lvl:t; init:player_turn >
@@ -155,17 +159,17 @@ module Lvl5
 = struct
 
   type t
-  type world = Short_cases.(
-    (m -> m -> k -> m -> f -> oc -> og -> tr -> c) row ->
-    (g -> m -> f -> m -> f -> m -> m -> m -> m ) row ->
-    (p -> m -> oc -> m -> f -> f -> go -> m -> k) row ->
-    (d -> m -> f -> f -> f -> f -> m -> f -> oc) row ->
-    (go -> m -> f -> f -> f -> f -> f -> f -> m) row ->
-    (f -> f -> f -> f -> f -> m -> m -> f -> f) row ->
-    (f -> m -> go -> m -> f -> f -> f -> m -> oc) row ->
-    (f -> f -> m -> p -> m -> f -> f -> m -> f) row ->
-    (f -> f -> m -> p -> m -> f -> f -> m -> f) row ->
-    (f -> f -> f -> d -> m -> f -> f -> m -> e) row
+  open Short_cases
+  type world = (
+    (m, m, k, m, f, oc, og, tr, c) row,
+    (g, m, f, m, f, m, m, m, m ) row,
+    (p, m, oc, m, f, f, go, m, k) row,
+    (d, m, f, f, f, f, m, f, oc) row,
+    (go, m, f, f, f, f, f, f, m) row,
+    (f, f, f, f, f, m, m, f, f) row,
+    (f, m, go, m, f, f, f, m, oc) row,
+    (f, f, m, p, m, f, f, m, f) row,
+    (f, f, f, d, m, f, f, m, e) row
   ) grid
   type start = <world:world; player:X.p; lvl:t; init:player_turn >
 
@@ -183,16 +187,17 @@ module Lvl6
 = struct
 
   type t
-  type world = Short_cases.(
-    (t -> t -> t -> t -> t -> t -> tr -> t -> f) row ->
-    (t -> e -> t -> t -> g -> t -> f -> t -> oc) row ->
-    (t -> tr -> t -> t -> t -> t -> f -> t -> f) row ->
-    (f -> f -> f -> t -> f -> f -> f -> t -> f) row ->
-    (ko -> t -> f -> t -> f -> t -> t -> t -> f) row ->
-    (f -> t -> f -> f -> ko -> f -> f -> oc -> f) row ->
-    (ko -> t -> t -> t -> t -> t -> t -> t -> t) row ->
-    (f -> t -> t -> t -> t -> oc -> t -> t -> t) row ->
-    (f -> f -> ko -> f -> f -> f -> f -> ko -> a) row
+  open Short_cases
+  type world = (
+    (t, t, t, t, t, t, tr, t, f) row,
+    (t, e, t, t, g, t, f, t, oc) row,
+    (t, tr, t, t, t, t, f, t, f) row,
+    (f, f, f, t, f, f, f, t, f) row,
+    (ko, t, f, t, f, t, t, t, f) row,
+    (f, t, f, f, ko, f, f, oc, f) row,
+    (ko, t, t, t, t, t, t, t, t) row,
+    (f, t, t, t, t, oc, t, t, t) row,
+    (f, f, ko, f, f, f, f, ko, a) row
   ) grid
   type start = <world:world; player:X.p; lvl:t; init:player_turn >
 
@@ -211,16 +216,17 @@ module Lvl7
 = struct
 
   type t
-  type world = Short_cases.(
-    (p -> d -> f -> m -> m -> k -> f -> m -> m) row ->
-    (m -> m -> f -> m -> m -> m -> f -> oc -> f) row ->
-    (m -> m -> f -> m -> m -> m -> f -> m -> k) row ->
-    (f -> f -> go -> f -> f -> m -> oc -> m -> m) row ->
-    (oc -> m -> m -> m -> f -> f -> f -> f -> oc) row ->
-    (k -> f -> go -> m -> m -> m -> f -> m -> og) row ->
-    (m -> m -> oc -> m -> m -> m -> ko -> m -> d) row ->
-    (r -> m -> f -> m -> e -> m -> f -> m -> d) row ->
-    (dr -> f -> f -> m -> s -> og -> f -> m -> g) row
+  open Short_cases
+  type world = (
+    (p, d, f, m, m, k, f, m, m) row,
+    (m, m, f, m, m, m, f, oc, f) row,
+    (m, m, f, m, m, m, f, m, k) row,
+    (f, f, go, f, f, m, oc, m, m) row,
+    (oc, m, m, m, f, f, f, f, oc) row,
+    (k, f, go, m, m, m, f, m, og) row,
+    (m, m, oc, m, m, m, ko, m, d) row,
+    (r, m, f, m, e, m, f, m, d) row,
+    (dr, f, f, m, s, og, f, m, g) row
   ) grid
   type start = <world:world; player:X.p; lvl:t; init:player_turn >
 
@@ -241,16 +247,17 @@ module Lvl8
 = struct
 
   type t
-  type world = Short_cases.(
-    (f -> m -> m -> m -> f -> oc -> f -> f -> f) row ->
-    (f -> f -> f -> f -> f -> m -> m -> m -> f) row ->
-    (m -> m -> m -> go -> go -> f -> f -> m -> f) row ->
-    (m -> m -> m -> f -> f -> f -> f -> m -> f) row ->
-    (al -> m -> m -> f -> f -> f -> f -> m -> f) row ->
-    (m -> m -> m -> f -> m -> m -> m -> m -> f) row ->
-    (m -> m -> m -> m -> f -> f -> f -> m -> tr) row ->
-    (dr -> m -> m -> m -> f -> m -> f -> m -> f) row ->
-    (f -> f -> f -> f -> f -> m -> f -> f -> f ) row
+  open Short_cases
+  type world = (
+    (f, m, m, m, f, oc, f, f, f) row,
+    (f, f, f, f, f, m, m, m, f) row,
+    (m, m, m, go, go, f, f, m, f) row,
+    (m, m, m, f, f, f, f, m, f) row,
+    (al, m, m, f, f, f, f, m, f) row,
+    (m, m, m, f, m, m, m, m, f) row,
+    (m, m, m, m, f, f, f, m, tr) row,
+    (dr, m, m, m, f, m, f, m, f) row,
+    (f, f, f, f, f, m, f, f, f ) row
   ) grid
   type start = <world:world; player:X.p; lvl:t; init:player_turn >
 
