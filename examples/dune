@@ -1,1 +1,3 @@
-(executable (name start) (libraries roguetype_lib))
+(executable
+ (name start)
+ (libraries roguetype.lib))
