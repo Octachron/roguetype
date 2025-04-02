@@ -1,6 +1,6 @@
 Roguetype is the first roguelike written in the OCaml type System.
 
-In a world full of GADTs and type constraints, discover hidden paths through
+In a world full of GADTs and functors, discover hidden paths through
 mountains and forest, vanquish dragons, traverse the seven functor gates to
 finally prove that the victory type is inhabited.
 
