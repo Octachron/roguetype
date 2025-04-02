@@ -51,7 +51,7 @@ module Short_cases = struct
 end
 
 module Lvl1 = struct
-  type t type l = t
+  type t type lvl = t
   open Short_cases
   type world = (
     (a, f, f, t, f, f, f, t, g) row,
@@ -65,12 +65,14 @@ module Lvl1 = struct
     (e, t, f, f, f, t, f, f, f) row
   ) grid
 
-  type start = <world:world; player:player_start; lvl:l; init:player_turn >
+  type start = <world:world; player:player_start; lvl:lvl; init:player_turn >
 
   type _ path =
     | []: start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
 
+  let start = []
+  let ( => ) l x = x :: l
 end
 
 module type clear = sig
@@ -83,7 +85,7 @@ end
 module Lvl2(X: clear with type 'a path = 'a Lvl1.path) =
 struct
 
-  type t type l = t
+  type t type lvl = t
   open Short_cases
   type world = (
     (f, f, f, f, f, f, m, m, g) row,
@@ -96,18 +98,21 @@ struct
     (m, k, m, m, m, m, m, m, f) row,
     (m, f, f, f, f, f, f, f, f) row
   ) grid
-  type start = <world:world; player:X.p; lvl:l; init:player_turn >
+  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
     | []: start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
+
+  let start = []
+  let ( => ) l x = x :: l
 end
 
 
 module Lvl3(L1: clear with type 'a path = 'a Lvl1.path)(X: clear with type 'a path = 'a Lvl2(L1).path) =
 struct
 
-  type t type l = t
+  type t type lvl = t
   open Short_cases
   type world = (
     (f , f , f , f , f , ko, f , f , f ) row,
@@ -120,11 +125,14 @@ struct
     (t , t , t , t , go, t , t , t , f ) row,
     (g , f , go, f , f , ko, f , f , f ) row
   ) grid
-  type start = <world:world; player:X.p; lvl:l; init:player_turn >
+  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
     | []: start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
+
+  let start = []
+  let ( => ) l x = x :: l
 end
 
 
@@ -134,7 +142,7 @@ module Lvl4
     (X: clear with type 'a path = 'a Lvl3(L1)(L2).path) =
 struct
 
-  type t type l = t
+  type t type lvl = t
   open Short_cases
   type world = (
    (d , f, f, m, k, f, f, m, g) row,
@@ -148,11 +156,14 @@ struct
    (p, d, f, m, f, f, f, go, f) row
   ) grid
 
-  type start = <world:world; player:X.p; lvl:l; init:player_turn >
+  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
     | []: start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
+
+  let start = []
+  let ( => ) l x = x :: l
 end
 
 module Lvl5
@@ -162,7 +173,7 @@ module Lvl5
     (X: clear with type 'a path = 'a Lvl4(L1)(L2)(L3).path)
 = struct
 
-  type t type l = t
+  type t type lvl = t
   open Short_cases
   type world = (
     (m, m, k, m, f, oc, og, tr, c) row,
@@ -175,11 +186,14 @@ module Lvl5
     (f, f, m, p, m, f, f, m, f) row,
     (f, f, f, d, m, f, f, m, e) row
   ) grid
-  type start = <world:world; player:X.p; lvl:l; init:player_turn >
+  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
     | []: start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
+
+  let start = []
+  let ( => ) l x = x :: l
 end
 
 module Lvl6
@@ -190,7 +204,7 @@ module Lvl6
     (X: clear with type 'a path = 'a Lvl5(L1)(L2)(L3)(L4).path)
 = struct
 
-  type t type l = t
+  type t type lvl = t
   open Short_cases
   type world = (
     (t, t, t, t, t, t, tr, t, f) row,
@@ -203,11 +217,14 @@ module Lvl6
     (f, t, t, t, t, oc, t, t, t) row,
     (f, f, ko, f, f, f, f, ko, a) row
   ) grid
-  type start = <world:world; player:X.p; lvl:l; init:player_turn >
+  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
     | []: start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
+
+  let start = []
+  let ( => ) l x = x :: l
 end
 
 module Lvl7
@@ -219,7 +236,7 @@ module Lvl7
     (X: clear with type 'a path = 'a Lvl6(L1)(L2)(L3)(L4)(L5).path)
 = struct
 
-  type t type l = t
+  type t type lvl = t
   open Short_cases
   type world = (
     (p, d, f, m, m, k, f, m, m) row,
@@ -232,11 +249,14 @@ module Lvl7
     (r, m, f, m, e, m, f, m, d) row,
     (dr, f, f, m, s, og, f, m, g) row
   ) grid
-  type start = <world:world; player:X.p; lvl:l; init:player_turn >
+  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
     | []: start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
+
+  let start = []
+  let ( => ) l x = x :: l
 end
 
 module Lvl8
@@ -250,7 +270,7 @@ module Lvl8
 
 = struct
 
-  type t type l = t
+  type t type lvl = t
   open Short_cases
   type world = (
     (f, m, m, m, f, oc, f, f, f) row,
@@ -263,11 +283,14 @@ module Lvl8
     (dr, m, m, m, f, m, f, m, f) row,
     (f, f, f, f, f, m, f, f, f ) row
   ) grid
-  type start = <world:world; player:X.p; lvl:l; init:player_turn >
+  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
     | []: start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
+
+  let start = []
+  let ( => ) l x = x :: l
 
   let win (_:<victory:yes> path) = exit 0
 end

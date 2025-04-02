@@ -1,28 +1,24 @@
+[@@@warning "-32"]
+
 open Roguetype_lib
+open! Generic
+open! Rules
 
-open Game.Lvl1
+module Lvl1 = struct
+  include Game.Lvl1
 
-let start = []
+  type p = Game.player_start
 
-let (=>) l x = x :: l
-
-let v = start => D => D => D => R => R => D  => R  => R
-        => U => U => U => U => U => U => U => U => Gate
-
-module Trace_1 = struct
-  type lvl = Game.Lvl1.t
-  type p= Game.player_start
-  type 'a path = 'a Game.Lvl1.path
-  let trace = v
+  let trace =
+    start => D => D => D => R => R => D => R => R => U => U => U => U => U => U
+    => U => U => Gate
 end
 
-module L2 = Game.Lvl2(Trace_1)
-open L2
+module Lvl2 = struct
+  include Game.Lvl2 (Lvl1)
 
-let[@warning "-32"] start_2 = []
+  (* type p = < health : R.four ; inventory : Inventory.none > *)
 
-(*
-let w = v
-        => R => R => D => R => R
-        => U => U => U => U => U => U => U => U => G
-*)
+  (* let trace = *)
+  (*   start => R => R => D => R => R => U => U => U => U => U => U => U => U => G *)
+end
