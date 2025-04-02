@@ -91,6 +91,7 @@ let main () =
   if not (Toploop.prepare ppf ()) then raise (Compenv.Exit_with_status 2);
   Compmisc.init_path ();
   Topfind.load_deeply ["roguetype.lib"];
+  let _ = Toploop.load_file Format.err_formatter "roguetype_lib.cma" in
   let _ = Toploop.use_silently Format.err_formatter
     (Toploop.String "let exit () = ();;")
   in
