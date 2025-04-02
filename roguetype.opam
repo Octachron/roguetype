@@ -3,7 +3,7 @@ opam-version: "2.0"
 synopsis: "The first roguetype in the OCaml type system"
 maintainer: ["octa@polychoron.fr"]
 authors: ["Florian Angeletti"]
-license: "LGPL"
+license: "LGPL-2.1-only WITH OCaml-LGPL-linking-exception"
 homepage: "https://github.com/Octachron/roguetype"
 bug-reports: "https://github.com/Octachron/roguetype/issues"
 depends: [

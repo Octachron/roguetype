@@ -5,7 +5,7 @@
 
 
 (source (github Octachron/roguetype))
-(license LGPL)
+ (license "LGPL-2.1-only WITH OCaml-LGPL-linking-exception")
 (authors "Florian Angeletti")
 (maintainers "octa@polychoron.fr")
 
