@@ -94,6 +94,7 @@ type 'a move =
   | L:
 (
 <
+  count: Nat.o -> 'count;
   lvl:'lvl; init:'init;
   player: 'p;
   world:
@@ -121,6 +122,7 @@ type 'a move =
   >
 > ->
 <
+  count: 'count;
   lvl:'lvl; init:'init;
   player: 'p;
   world:
@@ -150,6 +152,7 @@ type 'a move =
 ) move
 
   | R: (<
+  count: Nat.o -> 'count;
   lvl:'lvl; init:'init;
   player: 'p;
   world:
@@ -176,6 +179,7 @@ type 'a move =
     >
 >
  -> <
+  count: 'count;
   lvl:'lvl; init:'init;
   player: 'p;
   world:
@@ -205,6 +209,7 @@ type 'a move =
 
 
   | U: (<
+  count: Nat.o -> 'count;
   lvl:'lvl; init:'init;
   player: 'p;
   world: <
@@ -213,6 +218,7 @@ type 'a move =
     dw: 'd1 -> 'd2 -> 'd3 -> 'd4 -> 'd5 -> 'd6 -> 'd7 -> 'd8;
     >
 > -> <
+  count: 'count;
   lvl:'lvl; init:'init;
   player: 'p;
   world: <
@@ -226,6 +232,7 @@ type 'a move =
 >)move
 
   | D:(<
+  count: Nat.o -> 'count;
   lvl:'lvl; init:'init;
   player: 'p;
   world: <
@@ -234,6 +241,7 @@ type 'a move =
     dw: 'd1 -> 'd2 -> 'd3 -> 'd4 -> 'd5 -> 'd6 -> 'd7 -> 'd8;
     >
 > -> <
+  count: 'count;
   lvl:'lvl; init:'init;
   player: 'p;
   world: <
@@ -249,11 +257,13 @@ type 'a move =
 
   | P: (
 <
+  count: Nat.o -> 'count;
   lvl:'lvl; init:'init;
   player: < health: 'h; inventory:'pi >;
   world: < up:'up; m:<l:'l; m: 'item Case.floor; r:'r >; dw:'d >
 > ->
 <
+  count: 'count;
   lvl:'lvl; init:'init;
   player: < health: 'h; inventory:'item >;
   world: < up:'up; m:<l:'l; m: 'pi Case.floor; r:'r >; dw:'d >
@@ -261,11 +271,13 @@ type 'a move =
 ) move
   | O: (
 <
+  count: Nat.o -> 'count;
   lvl:'lvl; init:'init;
   player: < health: 'h; inventory:Inventory.key >;
   world: < up:'up; m:<l:'l; m: Case.door; r:'r >; dw:'d >
 > ->
 <
+  count: 'count;
   lvl:'lvl; init:'init;
   player: < health: 'h; inventory:Inventory.none >;
   world: < up:'up; m:<l:'l; m: Case.free; r:'r >; dw:'d >
@@ -273,11 +285,13 @@ type 'a move =
 ) move
   | C: (
 <
+  count: Nat.o -> 'count;
   lvl:'lvl; init:'init;
   player: < health: 'h; inventory:Inventory.axe >;
   world: < up:'up; m:<l:'l; m: Case.forest; r:'r >; dw:'d >
 > ->
 <
+  count: 'count;
   lvl:'lvl; init:'init;
   player: < health: 'h; inventory:Inventory.axe >;
   world: < up:'up; m:<l:'l; m: Case.free; r:'r >; dw:'d >
@@ -285,11 +299,13 @@ type 'a move =
 ) move
   | Dp: ('h -> 'nh) healing ->
       (<
+        count: Nat.o -> 'count;
         lvl:'lvl; init:'init;
         player:<health:'h; inventory:Inventory.potion>;
         world:'w
         > ->
        <
+        count: 'count;
         lvl:'lvl; init:'init;
         player:<health:'nh; inventory:Inventory.none>;
         world:'w
@@ -297,11 +313,13 @@ type 'a move =
 
   | E:
       (<
+        count: Nat.o -> 'count;
         lvl:'lvl; init:'init;
         player:<health:<current:'hc; potential:'hp>; inventory:Inventory.elixir>;
         world:'w
         > ->
        <
+        count: 'count;
         lvl:'lvl; init:'init;
         player:<
           health: <current:Nat.o -> 'hc; potential:'hp>;
@@ -312,6 +330,7 @@ type 'a move =
 
   | A: (
 <
+  count: Nat.o -> 'count;
   lvl:'lvl; init:'init;
   player: <inventory:Inventory.ring_of_annihilation; health:_>;
   world: <
@@ -320,6 +339,7 @@ type 'a move =
     dw: <l:'d1l; m:_; r:'d1r> -> <l:'d2l; m:_; r:'d2r> -> 'dr;
   >
 > -> <
+  count: 'count;
   lvl:'lvl; init:'init;
   player: <inventory:Inventory.none; health:<current:Nat.o -> Nat.z; potential:Nat.z > >;
   world: <
@@ -330,6 +350,7 @@ type 'a move =
 >) move
 
   | FS: (<
+  count: Nat.o -> 'count;
   lvl: 'lvl;
   init:player_turn;
   player: <inventory:'i; health: <current:Nat.o -> 'hc; potential:'hp> >;
@@ -339,6 +360,7 @@ type 'a move =
     dw:'d
   >;
 > -> <
+  count: 'count;
   lvl: 'lvl;
   init:monster_turn;
   player: <inventory:'i; health: <current:Nat.o -> 'hc; potential:'hp> >;
@@ -349,6 +371,7 @@ type 'a move =
   >;
   >) move
   | FMS: (<
+  count: Nat.o -> 'count;
   lvl: 'lvl;
   init:player_turn;
   player: <inventory:Inventory.mithril_sword; health: <current:Nat.o -> 'hc; potential:'hp> >;
@@ -358,6 +381,7 @@ type 'a move =
     dw:'d
   >;
 > -> <
+  count: 'count;
   lvl: 'lvl;
   init:monster_turn;
   player: <inventory:Inventory.mithril_sword; health: <current:Nat.o -> 'hc; potential:'hp> >;
@@ -368,6 +392,7 @@ type 'a move =
   > >) move
 
   | FCS: (<
+  count: Nat.o -> 'count;
   lvl: 'lvl;
   init:player_turn;
   player: <inventory:Inventory.cristal_sword; health: <current:Nat.o -> 'hc; potential:'hp> >;
@@ -376,6 +401,7 @@ type 'a move =
     m:<l:'l; m:_ Case.monster; r:'r >;
     dw:'d
   > > -> <
+  count: 'count;
   lvl: 'lvl;
   init:player_turn;
   player: <inventory:Inventory.none; health: <current:Nat.o -> 'hc; potential:'hp> >;
@@ -387,6 +413,7 @@ type 'a move =
 
   | Df:
  (<
+  count: Nat.o -> 'count;
   lvl: 'lvl;
   init:monster_turn;
   player: <inventory:'i; health: <current:Nat.o -> 'hc; potential:'hp> >;
@@ -395,6 +422,7 @@ type 'a move =
     m:<l:'l; m: <health: Nat.o -> 'mh> Case.monster; r:'r >;
     dw:'d;
   > > -> <
+  count: 'count;
   lvl: 'lvl;
   init:player_turn;
   player: <inventory:'i; health: <current:'hc; potential: Nat.o -> 'hp> >;
@@ -405,6 +433,7 @@ type 'a move =
   > >) move
 
   | K: (<
+  count: Nat.o -> 'count;
   lvl: 'lvl;
   init:monster_turn;
   player: <inventory:'i; health: <current:Nat.o -> 'hc; potential:'hp> >;
@@ -413,6 +442,7 @@ type 'a move =
     m:<l:'l; m: <health: Nat.z> Case.monster; r:'r >;
     dw:'d;
   > > -> <
+  count: 'count;
   lvl: 'lvl;
   init:player_turn;
   player: <inventory:'i; health: <current:Nat.o -> 'hc; potential:'hp> >;
@@ -423,6 +453,7 @@ type 'a move =
   > >) move
 
   | Gate: (<
+    count: Nat.o -> 'count;
     lvl: 'lvl;
     init:_;
     player: 'p;
@@ -432,11 +463,13 @@ type 'a move =
       dw:_
     >
   > -> <
+  count: 'count;
   lvl: 'lvl;
   level_cleared:yes;
   player: 'p;
   >) move
   | Win: (<
+    count: _;
     lvl: _;
     init:_;
     player: _;

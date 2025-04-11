@@ -65,10 +65,10 @@ module Lvl1 = struct
     (e, t, f, f, f, t, f, f, f) row
   ) grid
 
-  type start = <world:world; player:player_start; lvl:lvl; init:player_turn >
+  type 'count start = <count: 'count; world:world; player:player_start; lvl:lvl; init:player_turn >
 
   type _ path =
-    | []: start path
+    | []: 'count start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
 
   let start = []
@@ -79,7 +79,7 @@ module type clear = sig
   type 'a path
   type p
   type lvl
-  val trace: <player:p; level_cleared:yes; lvl: lvl > path
+  val trace: <count: Nat.z; player:p; level_cleared:yes; lvl: lvl > path
 end
 
 module Lvl2(X: clear with type 'a path = 'a Lvl1.path) =
@@ -98,10 +98,10 @@ struct
     (m, k, m, m, m, m, m, m, f) row,
     (m, f, f, f, f, f, f, f, f) row
   ) grid
-  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
+  type 'count start = <count: 'count; world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
-    | []: start path
+    | []: 'count start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
 
   let start = []
@@ -125,10 +125,10 @@ struct
     (t , t , t , t , go, t , t , t , f ) row,
     (g , f , go, f , f , ko, f , f , f ) row
   ) grid
-  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
+  type 'count start = <count: 'count; world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
-    | []: start path
+    | []: 'count start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
 
   let start = []
@@ -156,10 +156,10 @@ struct
    (p, d, f, m, f, f, f, go, f) row
   ) grid
 
-  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
+  type 'count start = <count: 'count; world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
-    | []: start path
+    | []: 'count start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
 
   let start = []
@@ -186,10 +186,10 @@ module Lvl5
     (f, f, m, p, m, f, f, m, f) row,
     (f, f, f, d, m, f, f, m, e) row
   ) grid
-  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
+  type 'count start = <count: 'count; world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
-    | []: start path
+    | []: 'count start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
 
   let start = []
@@ -217,10 +217,10 @@ module Lvl6
     (f, t, t, t, t, oc, t, t, t) row,
     (f, f, ko, f, f, f, f, ko, a) row
   ) grid
-  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
+  type 'count start = <count: 'count; world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
-    | []: start path
+    | []: 'count start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
 
   let start = []
@@ -249,10 +249,10 @@ module Lvl7
     (r, m, f, m, e, m, f, m, d) row,
     (dr, f, f, m, s, og, f, m, g) row
   ) grid
-  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
+  type 'count start = <count: 'count; world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
-    | []: start path
+    | []: 'count start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
 
   let start = []
@@ -283,10 +283,10 @@ module Lvl8
     (dr, m, m, m, f, m, f, m, f) row,
     (f, f, f, f, f, m, f, f, f ) row
   ) grid
-  type start = <world:world; player:X.p; lvl:lvl; init:player_turn >
+  type 'count start = <count: 'count; world:world; player:X.p; lvl:lvl; init:player_turn >
 
   type _ path =
-    | []: start path
+    | []: 'count start path
     | (::): ('a -> 'b) move * 'a path -> 'b path
 
   let start = []
